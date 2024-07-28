@@ -1,0 +1,63 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+.top-header {
+    background-color: #FFFFFF;
+    color: #FFAA33;
+}
+
+.top-header .search-bar {
+    flex: 1;
+    margin: 0 20px;
+}
+
+.top-header .search-bar input {
+    border: 1px solid #FFAA33;
+}
+
+.top-header .search-bar .btn-primary {
+    background-color: #FFAA33;
+    border: none;
+}
+
+.top-header .header-icons a {
+    color: #FFAA33;
+    font-size: 16px;
+    text-decoration: none;
+}
+
+.top-header .header-icons a:hover {
+    text-decoration: underline;
+}
+
+.logo-img {
+    width: 120px;
+}
+
+.navbar {
+    background-color: #FFAA33;
+}
+
+.navbar-nav .nav-link {
+    color: #FFFFFF;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #333333;
+}
+
+.navbar-nav .dropdown-menu {
+    background-color: #FFAA33;
+}
+
+.navbar-nav .dropdown-menu .dropdown-item {
+    color: #FFFFFF;
+}
+
+.navbar-nav .dropdown-menu .dropdown-item:hover {
+    background-color: #333333;
+    color: #FFAA33;
+}
