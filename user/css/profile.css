@@ -15,18 +15,20 @@ body {
 }
 
 .card-header {
-    background-color: #FFAA33;
-    color: #fff;
+    background-color: #FFAA33; 
+    color: #fff; 
 }
 
 .btn-warning {
     background-color: #FFAA33;
+    color: #fff; 
     border-color: #FFAA33;
 }
 
 .btn-warning:hover {
-    background-color: #e69929;
-    border-color: #e69929;
+    background-color: #f59611; 
+    border-color: #f59611;
+    color: #fff;
 }
 
 .text-danger {
@@ -46,4 +48,15 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+.btn-primary {
+    background-color: #FFAA33;
+    color: #fff;
+    border-color: #FFAA33;
+}
+
+.btn-primary:hover {
+    background-color: #f59611;
+    border-color: #f59611;
 }

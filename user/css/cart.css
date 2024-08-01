@@ -1,0 +1,58 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+}
+
+h2, h3 {
+    color: #FFAA33;
+}
+
+
+.container1 {
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    max-width: 1200px;
+    margin: 0 auto; 
+}
+
+
+.card {
+    margin-bottom: 20px;
+}
+
+.card img {
+    max-width: 100%;
+    height: 150px; /* Set a fixed height for image */
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.qty-controls {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.qty-controls .btn {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+}
+
+.qty-controls .form-control {
+    width: 60px;
+    text-align: center;
+}
+
+.text-ffaa33 {
+    color: #FFAA33;
+}
+
+.qty-input {
+    width: 40px;
+}
+

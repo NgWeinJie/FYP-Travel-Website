@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - Attractions</title>
+    <title>Cart Page</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="css/home.css">
+    <link rel="stylesheet" href="css/cart.css">
     <link rel="stylesheet" href="css/header.css">
 </head>
 <body>
@@ -72,20 +72,23 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <div class="container my-4">
-        <h1 class="my-4">Explore Attractions</h1>
-        <div class="row" id="attractions-container">
-            <!-- Attractions will be dynamically added here -->
+    <div class="container1 center my-4">
+        <h2>Shopping Cart</h2>
+        <div id="cartItems"></div>
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <button id="clearCart" class="btn btn-danger" onclick="handleClearCart()">Clear Cart</button>
+            <h3>Subtotal: <span id="subtotal">0.00 MYR</span></h3>
+            <button class="btn btn-primary" onclick="checkout()">Proceed to Checkout</button>
         </div>
     </div>
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="js/home.js"></script>
+    <script src="js/cart.js"></script>
 </body>
 </html>

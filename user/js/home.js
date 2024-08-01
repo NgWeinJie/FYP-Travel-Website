@@ -17,20 +17,12 @@ const db = firebase.firestore();
 
 // Function to create the media element
 function createMediaElement(images) {
-    console.log("Media URLs:", images); // Log the URLs to debug
-
-    // Fallback image index
     const fallbackIndex = 1;
-
-    // Ensure there's at least one image
     if (images.length === 0) {
         return `<img src="fallback-image-url.jpg" class="card-img-top" alt="Fallback Image">`;
     }
-
     const primarySrc = images[0];
     const extension = primarySrc.split('.').pop().toLowerCase();
-
-    // Create the media element based on the type
     if (extension === 'mp4') {
         return `
             <video class="card-img-top" controls>
@@ -42,20 +34,6 @@ function createMediaElement(images) {
     } else {
         return `<img src="${primarySrc}" class="card-img-top" alt="Attraction media">`;
     }
-}
-
-// Function to handle media fallbacks
-function handleMediaFallbacks() {
-    const videos = document.querySelectorAll('video');
-    videos.forEach(video => {
-        video.addEventListener('error', () => {
-            const fallbackImage = video.nextElementSibling;
-            if (fallbackImage) {
-                video.style.display = 'none';
-                fallbackImage.style.display = 'block';
-            }
-        });
-    });
 }
 
 // Fetch and display attractions
@@ -71,31 +49,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         snapshot.forEach(doc => {
             const data = doc.data();
-            console.log("Attraction data:", data); // Log data to debug
-
             const mediaElement = createMediaElement(data.images);
+            const attractionId = doc.id;
 
             const cardHTML = `
                 <div class="col-md-4 mb-4">
-                    <div class="card">
-                        ${mediaElement}
-                        <div class="card-body">
-                            <h5 class="card-title">${data.destinationName}</h5>
-                            <p class="card-text">${data.description}</p>
+                    <a href="attraction_details.html?id=${attractionId}" class="card-link">
+                        <div class="card">
+                            ${mediaElement}
+                            <div class="card-body">
+                                <h5 class="card-title">${data.destinationName}</h5>
+                                <p class="card-text">From MYR ${data.ticketPriceMalaysianAdult}</p>
+                            </div>
                         </div>
-                        <div class="card-footer">
-                            <small>Malaysian Adult: ${data.ticketPriceMalaysianAdult} MYR</small><br>
-                            <small>Non-Malaysian Adult: ${data.ticketPriceNonMalaysianAdult} MYR</small><br>
-                            <a href="${data.googleMapLink}" class="btn btn-light btn-sm text-dark" target="_blank">View on Map</a>
-                        </div>
-                    </div>
+                    </a>
                 </div>
             `;
             attractionsContainer.innerHTML += cardHTML;
         });
-
-        // Handle media fallbacks after the DOM is updated
-        handleMediaFallbacks();
 
     } catch (error) {
         console.error("Error fetching attractions: ", error);

@@ -1,0 +1,193 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+}
+
+h2 {
+    color: #FFAA33;
+    margin-bottom: 20px;
+}
+
+/* Container */
+#attraction-details {
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Media Styles */
+.img-fluid {
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.main-img-container {
+    width: 70%;
+}
+
+.main-img {
+    height: 400px; /* Fixed height */
+    width: 100%;
+    object-fit: cover; /* Ensure the image covers the container */
+}
+
+.secondary-img-container {
+    height: 195px; /* Fixed height for half the height of the main image with margin */
+}
+
+.secondary-img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover; /* Ensure the image covers the container */
+}
+
+/* Details Styles */
+p {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+strong {
+    color: #333;
+}
+
+a.btn-light {
+    background-color: #FFAA33;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+a.btn-light:hover {
+    background-color: #e89b28;
+}
+
+/* Remove extra margin and padding */
+.no-gutters {
+    margin-right: 0;
+    margin-left: 0;
+}
+
+.no-gutters > .col,
+.no-gutters > [class*="col-"] {
+    padding-right: 0;
+    padding-left: 0;
+}
+
+.row .pr-md-1, .row .pl-md-1 {
+    padding-right: 0.25rem;
+    padding-left: 0.25rem;
+}
+
+.mb-1 {
+    margin-bottom: 0.25rem;
+}
+
+/* Ticketing Styles */
+#ticketing {
+    margin-top: 30px;
+    background-color: #fcf6ed !important; /* Background color for the ticketing section */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#ticketing .form-group {
+    margin-bottom: 20px;
+}
+
+#ticketing .form-control {
+    width: 100%;
+    text-align: center;
+}
+
+.qty-box {
+    width: 40px !important;
+    
+}
+
+.ticket-section {
+    margin-top: 20px;
+}
+
+.ticket-category {
+    margin-bottom: 20px;
+}
+
+.ticket-category h4 {
+    color: #FFAA33; /* Category header color */
+    margin-bottom: 15px;
+}
+
+.ticket-item {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ticket-name {
+    flex: 1;
+    color: #555; /* Ticket name text color */
+}
+
+.ticket-price {
+    color: #FFAA33; 
+    margin-right: 15px;
+    text-align: center; 
+    flex: 2; 
+}
+
+.qty-controls {
+    display: flex;
+    align-items: center;
+}
+
+.qty-controls .btn {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+}
+
+.qty-controls .form-control {
+    width: 40px;
+    text-align: center;
+}
+
+#totalAmount {
+    color: #FFAA33; /* Total text color */
+    margin-top: 20px;
+    text-align: right;
+}
+
+.btn-primary {
+    background-color: #FFAA33;
+    border-color: #FFAA33;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background-color: #e89b28;
+    border-color: #e89b28;
+}
+
+/* Select Date and Purchase Tickets section alignment */
+.form-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.form-group label {
+    margin-right: 10px;
+}
+
+.form-group .form-control {
+    flex: 1;
+}

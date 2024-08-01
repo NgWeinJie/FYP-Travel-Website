@@ -71,37 +71,37 @@
         </div>
     </nav>
 
-    <!-- Profile Page Content -->
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card">
-                    <div class="card-header bg-primary text-white">
+                    <div class="card-header bg-custom">
                         <h4 class="mb-0">Profile</h4>
                     </div>
                     <div class="card-body">
                         <form id="profileForm">
                             <div class="form-group">
                                 <label for="firstName">First Name</label>
-                                <input type="text" class="form-control" id="firstName" required>
+                                <input type="text" class="form-control" id="firstName" readonly required>
                                 <div class="text-danger error d-none" id="firstNameError"></div>
                             </div>
                             <div class="form-group">
                                 <label for="lastName">Last Name</label>
-                                <input type="text" class="form-control" id="lastName" required>
+                                <input type="text" class="form-control" id="lastName" readonly required>
                                 <div class="text-danger error d-none" id="lastNameError"></div>
                             </div>
                             <div class="form-group">
                                 <label for="email">Email</label>
-                                <input type="email" class="form-control" id="email" required>
+                                <input type="email" class="form-control" id="email" readonly required>
                                 <div class="text-danger error d-none" id="emailError"></div>
                             </div>
                             <div class="form-group">
                                 <label for="contactNumber">Contact Number</label>
-                                <input type="tel" class="form-control" id="contactNumber" required>
+                                <input type="tel" class="form-control" id="contactNumber" readonly required>
                                 <div class="text-danger error d-none" id="contactNumberError"></div>
                             </div>
-                            <button type="submit" class="btn btn-warning btn-block">Save Changes</button>
+                            <button type="submit" class="btn btn-warning btn-block d-none" id="saveButton">Save Changes</button>
+                            <button type="button" class="btn btn-primary btn-block" id="editButton">Edit</button>
                             <div class="text-danger error d-none" id="formError"></div>
                         </form>
                     </div>
@@ -110,12 +110,12 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.20.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.20.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.20.0/firebase-firestore.js"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="js/profile.js"></script>
 </body>
