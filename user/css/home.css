@@ -62,3 +62,25 @@ body {
     transform: scale(1.02);
 }
 
+.like-button, .dislike-button {
+    border: 2px solid #FFAA33; /* Outline color */
+    background: none;
+    font-size: 18px;
+    color: #FFAA33; /* Default text color for outline */
+    cursor: pointer;
+    margin-right: 10px;
+    border-radius: 5px; /* Rounded corners */
+    padding: 5px 10px; /* Padding inside button */
+}
+
+.like-button:hover, .dislike-button:hover {
+    color: #FFAA33; /* Color on hover */
+    border-color: #FFAA33; /* Border color on hover */
+}
+
+.like-button.active, .dislike-button.active {
+    color: #FFAA33 !important; /* Text color when active */
+    border-color: #FFAA33 !important; /* Border color when active */
+    background-color: rgba(255, 170, 51, 0.1) !important; /* Light orange background when active */
+}
+
