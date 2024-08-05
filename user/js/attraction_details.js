@@ -13,8 +13,8 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
+const storage = firebase.storage();  // Initialize Firebase Storage
 
-// Function to create the media element
 function createMediaElement(images) {
     return `
         <div class="row">
@@ -35,7 +35,6 @@ function createMediaElement(images) {
     `;
 }
 
-// Function to calculate total
 function calculateTotal() {
     const ticketPriceMalaysianAdult = parseFloat(document.getElementById('ticketPriceMalaysianAdult').innerText);
     const ticketPriceMalaysianChild = parseFloat(document.getElementById('ticketPriceMalaysianChild').innerText);
@@ -55,7 +54,140 @@ function calculateTotal() {
     document.getElementById('totalAmount').innerText = `Total: ${total.toFixed(2)} MYR`;
 }
 
-// Fetch and display attraction details
+function createMediaElementFromUrls(urls) {
+    return urls.map(url => `
+        <div class="media-item" style="padding-bottom: 15px;">
+            ${url.endsWith('.mp4') ? `<video controls src="${url}" class="video-fluid" style="width: 300px; height: 200px;"></video>` : `<img src="${url}" class="img-fluid" style="width: 300px; height: 200px;" alt="Media Image">`}
+        </div>
+    `).join('');
+}
+
+
+function createReviewElement(review) {
+    const date = review.timestamp.toDate();  // Convert Firestore Timestamp to JS Date
+    return `
+        <div class="media mb-3">
+            <img src="../image/avatar.jpg" class="mr-3 rounded-circle avatar" alt="User Avatar">
+            <div class="media-body">
+                <h5 class="mt-0">${review.userName} <small class="text-muted">${date.toLocaleString()}</small></h5>
+                <p>${review.comment}</p>
+                ${createMediaElementFromUrls(review.mediaUrls || [])}
+                <button class="btn btn-sm btn-link reply-button" data-review-id="${review.id}">Reply</button>
+                <div class="replies ml-4">
+                    ${review.replies.map(reply => createReplyElement(reply)).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+
+function createReplyElement(reply) {
+    const date = reply.timestamp.toDate();  // Convert Firestore Timestamp to JS Date
+    return `
+        <div class="media mt-3">
+            <img src="../image/avatar.jpg" class="mr-3 rounded-circle avatar" alt="User Avatar">
+            <div class="media-body">
+                <h6 class="mt-0">${reply.userName} <small class="text-muted">${date.toLocaleString()}</small></h6>
+                <p>${reply.comment}</p>
+            </div>
+        </div>
+    `;
+}
+
+async function fetchReviews(attractionId) {
+    const reviewsSnapshot = await db.collection('reviews').where('attractionId', '==', attractionId).orderBy('timestamp', 'desc').get();
+    const reviews = reviewsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    const reviewsHTML = reviews.map(review => createReviewElement(review)).join('');
+    document.getElementById('reviews').innerHTML = reviewsHTML;
+}
+
+async function addReview() {
+    const user = auth.currentUser;
+    if (!user) {
+        alert('Please log in to publish a review.');
+        return;
+    }
+
+    const userDoc = await db.collection('users').doc(user.uid).get();
+    if (!userDoc.exists) {
+        alert('User information not found.');
+        return;
+    }
+
+    const { firstName, lastName } = userDoc.data();
+
+    const attractionId = new URLSearchParams(window.location.search).get('id');
+    const comment = document.getElementById('reviewComment').value;
+    if (!comment) {
+        alert('Please enter a comment.');
+        return;
+    }
+
+    // Handle file upload
+    const files = document.getElementById('reviewFiles').files;
+    const mediaUrls = [];
+    for (const file of files) {
+        const fileRef = storage.ref().child(`reviews/${Date.now()}_${file.name}`);
+        await fileRef.put(file);
+        const url = await fileRef.getDownloadURL();
+        mediaUrls.push(url);
+    }
+
+    const review = {
+        attractionId,
+        userName: `${firstName} ${lastName}`,
+        comment,
+        timestamp: firebase.firestore.Timestamp.now(),  // Use Firestore Timestamp
+        mediaUrls,  // Store media URLs
+        replies: []
+    };
+
+    try {
+        await db.collection('reviews').add(review);
+        document.getElementById('reviewComment').value = '';
+        document.getElementById('reviewFiles').value = ''; // Clear file input
+        fetchReviews(attractionId);
+    } catch (error) {
+        console.error("Error adding review: ", error);
+        alert('Failed to publish review. Please try again later.');
+    }
+}
+
+async function addReply(reviewId, comment) {
+    const user = auth.currentUser;
+    if (!user) {
+        alert('Please log in to reply to a comment.');
+        return;
+    }
+
+    const userDoc = await db.collection('users').doc(user.uid).get();
+    if (!userDoc.exists) {
+        alert('User information not found.');
+        return;
+    }
+
+    const { firstName, lastName } = userDoc.data();
+
+    const reply = {
+        userName: `${firstName} ${lastName}`,
+        comment,
+        timestamp: firebase.firestore.Timestamp.now()  // Use Firestore Timestamp
+    };
+
+    try {
+        const reviewRef = db.collection('reviews').doc(reviewId);
+        await reviewRef.update({
+            replies: firebase.firestore.FieldValue.arrayUnion(reply)
+        });
+        fetchReviews(new URLSearchParams(window.location.search).get('id'));
+    } catch (error) {
+        console.error("Error adding reply: ", error);
+        alert('Failed to reply to comment. Please try again later.');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const attractionId = urlParams.get('id');
@@ -135,16 +267,54 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <button type="button" class="btn btn-primary mt-3" onclick="addToCart()" style="background-color: #FFAA33; border-color: #FFAA33;">Add to Cart</button>
                 </div>
             </div>
-            <p class="mt-4">${data.description}</p>
-            <p><strong>Operating Hours:</strong> ${data.operatingHours}</p>
-            <a href="${data.googleMapLink}" class="btn btn-light" target="_blank">View on Map</a>
+            <div class="card mb-3">
+                <div class="card-header text-white" style="background-color: #FFAA33;">Description</div>
+                <div class="card-body">
+                    <p id="attractionDescription">${data.description}</p>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header text-white" style="background-color: #FFAA33;">Operating Hours</div>
+                <div class="card-body">
+                    <p id="operatingHours">${data.operatingHours}</p>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header text-white" style="background-color: #FFAA33;">Reviews</div>
+                <div class="card-body">
+                    <div id="reviews">
+                    </div>
+                    <div class="form-group mt-4">
+                        <textarea class="form-control" id="reviewComment" rows="3" placeholder="Share your experience..."></textarea>
+                        <input type="file" id="reviewFiles" multiple>
+                        <button class="btn btn-primary mt-2" onclick="addReview()" style="background-color: #FFAA33; border-color: #FFAA33;">Publish Review</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-3">
+                <div class="card-header text-white" style="background-color: #FFAA33;">Location</div>
+                <div class="card-body">
+                    ${data.googleMapLink}
+                </div>
+            </div>
         `;
         document.getElementById('attraction-details').innerHTML = detailsHTML;
 
-        // Add event listeners
+        fetchReviews(attractionId);
+
         document.getElementById('visitDate').addEventListener('change', calculateTotal);
         document.querySelectorAll('#ticketing .form-control').forEach(el => {
             el.addEventListener('change', calculateTotal);
+        });
+
+        document.getElementById('attraction-details').addEventListener('click', event => {
+            if (event.target.classList.contains('reply-button')) {
+                const reviewId = event.target.dataset.reviewId;
+                const replyComment = prompt('Enter your reply:');
+                if (replyComment) {
+                    addReply(reviewId, replyComment);
+                }
+            }
         });
     } catch (error) {
         console.error("Error fetching attraction details: ", error);
@@ -152,18 +322,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// Adjust quantity function
-function adjustQuantity(type, change) {
+function adjustQuantity(type, delta) {
     const qtyInput = document.getElementById(`qty${type}`);
-    let currentQty = parseInt(qtyInput.value) || 0;
-    currentQty += change;
-    if (currentQty < 0) currentQty = 0;
-    qtyInput.value = currentQty;
+    let currentValue = parseInt(qtyInput.value) || 0;
+    currentValue += delta;
+    if (currentValue < 0) currentValue = 0;
+    qtyInput.value = currentValue;
     calculateTotal();
 }
 
 async function addToCart() {
-    const user = auth.currentUser;  // Get current user
+    const user = auth.currentUser;
     if (!user) {
         alert('Please log in to add items to your cart.');
         return;
@@ -171,37 +340,30 @@ async function addToCart() {
 
     const attractionId = new URLSearchParams(window.location.search).get('id');
     const visitDate = document.getElementById('visitDate').value;
+
+    if (!visitDate) {
+        alert('Please select a date for your visit.');
+        return;
+    }
+
     const qtyMalaysianAdult = parseInt(document.getElementById('qtyMalaysianAdult').value) || 0;
     const qtyMalaysianChild = parseInt(document.getElementById('qtyMalaysianChild').value) || 0;
     const qtyNonMalaysianAdult = parseInt(document.getElementById('qtyNonMalaysianAdult').value) || 0;
     const qtyNonMalaysianChild = parseInt(document.getElementById('qtyNonMalaysianChild').value) || 0;
     const totalAmount = parseFloat(document.getElementById('totalAmount').innerText.replace('Total: ', '').replace(' MYR', ''));
 
-    // Validation: Check if a visit date is selected
-    if (!visitDate) {
-        alert('Please select a date for your visit.');
-        return;
-    }
-
-    // Validation: Check if at least one ticket is selected
-    const quantities = {};
-    if (qtyMalaysianAdult > 0) quantities.MalaysianAdult = qtyMalaysianAdult;
-    if (qtyMalaysianChild > 0) quantities.MalaysianChild = qtyMalaysianChild;
-    if (qtyNonMalaysianAdult > 0) quantities.NonMalaysianAdult = qtyNonMalaysianAdult;
-    if (qtyNonMalaysianChild > 0) quantities.NonMalaysianChild = qtyNonMalaysianChild;
-
-    if (Object.keys(quantities).length === 0) {
-        alert('Please select at least one type of ticket.');
-        return;
-    }
-
     const cartItem = {
         attractionId,
         visitDate,
-        quantities,
+        quantities: {
+            MalaysianAdult: qtyMalaysianAdult,
+            MalaysianChild: qtyMalaysianChild,
+            NonMalaysianAdult: qtyNonMalaysianAdult,
+            NonMalaysianChild: qtyNonMalaysianChild
+        },
         totalAmount,
         userId: user.uid,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        timestamp: firebase.firestore.Timestamp.now()  // Use Firestore Timestamp
     };
 
     try {
@@ -213,8 +375,6 @@ async function addToCart() {
     }
 }
 
-
-// Example login handling
 auth.onAuthStateChanged(user => {
     if (user) {
         console.log('User logged in:', user.email);
@@ -222,4 +382,3 @@ auth.onAuthStateChanged(user => {
         console.log('No user logged in.');
     }
 });
-
