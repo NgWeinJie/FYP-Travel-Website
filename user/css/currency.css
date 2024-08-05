@@ -1,0 +1,75 @@
+/* General Body Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Top Header */
+.top-header {
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.top-header .logo-img {
+    max-height: 50px;
+}
+
+.search-bar input {
+    border-radius: 20px;
+    border: 1px solid #ddd;
+}
+
+.header-icons a {
+    color: #FFAA33;
+}
+
+.header-icons a:hover {
+    color: #e68a00;
+}
+
+/* Navbar */
+.navbar-light .navbar-nav .nav-link {
+    color: #fff;
+}
+
+.navbar-light .navbar-nav .nav-link:hover {
+    color: #ffd699;
+}
+
+.navbar-light .navbar-nav .nav-item.active .nav-link {
+    color: #fff;
+}
+
+/* Card Styles */
+.card {
+    border: none;
+    border-radius: 10px;
+}
+
+.card-header {
+    font-weight: bold;
+    background-color: #FFAA33;
+    border-bottom: 1px solid #ddd;
+}
+
+.card-body {
+    background-color: #fff;
+    padding: 2rem;
+}
+
+h1 {
+    color: #FFAA33;
+    font-weight: bold;
+}
+
+.form-group label {
+    font-weight: bold;
+}
+
+#result {
+    font-size: 24px;
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
