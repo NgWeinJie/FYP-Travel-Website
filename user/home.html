@@ -17,9 +17,9 @@
                 <img src="../image/logo1.png" alt="Website Logo" class="logo-img">
             </div>
             <div class="search-bar input-group">
-                <input type="text" class="form-control" placeholder="Search...">
+                <input type="text" class="form-control" id="searchInput" placeholder="Search...">
                 <div class="input-group-append">
-                    <button class="btn btn-primary" type="button">
+                    <button class="btn btn-primary" type="button" id="searchButton">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
@@ -48,8 +48,8 @@
                             Destination
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item text-white" href="#">Kuala Lumpur</a>
-                            <a class="dropdown-item text-white" href="#">Penang</a>
+                            <a class="dropdown-item text-white" href="#" id="kuala-lumpur-link">Kuala Lumpur</a>
+                            <a class="dropdown-item text-white" href="#" id="penang-link">Penang</a>
                         </div>
                     </li>
                     <li class="nav-item">
@@ -75,10 +75,36 @@
     <!-- Main Content -->
     <div class="container my-4">
         <h1 class="my-4">Explore Attractions</h1>
-        <div class="row" id="attractions-container">
-            <!-- Attractions will be dynamically added here -->
+        <div id="recommendations-section">
+            <h2>Recommended for You</h2>
+            <div class="row" id="recommendations">
+                <!-- Recommended Attractions will be dynamically added here -->
+            </div>
+        </div>
+        <div id="kuala-lumpur-section">
+            <h2>Kuala Lumpur</h2>
+            <div class="row" id="kuala-lumpur-attractions">
+                <!-- Kuala Lumpur Attractions will be dynamically added here -->
+            </div>
+        </div>
+        <div id="penang-section" class="mt-5">
+            <h2>Penang</h2>
+            <div class="row" id="penang-attractions">
+                <!-- Penang Attractions will be dynamically added here -->
+            </div>
+        </div>
+        <div id="search-results-section" class="mt-5" style="display: none;">
+            <h2>Search Results</h2>
+            <div class="row" id="search-results">
+                <!-- Search Results will be dynamically added here -->
+            </div>
         </div>
     </div>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="btn btn-warning btn-floating">
+        <i class="fas fa-chevron-up"></i>
+    </button>
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-app.js"></script>
