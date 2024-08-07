@@ -1,0 +1,155 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+}
+
+.top-header {
+    border-bottom: 1px solid #ddd;
+}
+
+.top-header .logo-img {
+    height: 50px;
+}
+
+.top-header .search-bar {
+    width: 50%;
+}
+
+.top-header .header-icons a {
+    color: #FFAA33;
+}
+
+.navbar {
+    margin-bottom: 20px;
+}
+
+.navbar .nav-link {
+    color: white !important;
+}
+
+#postForm {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+#postForm textarea {
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 1rem;
+}
+
+#postForm input[type="file"] {
+    margin-top: 10px;
+}
+
+#postForm button {
+    background-color: #FFAA33;
+    border-color: #FFAA33;
+    color: white;
+}
+
+#postForm button:hover {
+    background-color: #e89b28;
+}
+
+.card {
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-title {
+    color: #333;
+}
+
+.card-text {
+    color: #555;
+}
+
+.media-item {
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.comment-button {
+    background-color: #FFAA33;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.comment-button:hover {
+    background-color: #e89b28;
+}
+
+.media {
+    margin-top: 20px;
+    align-items: center;
+}
+
+.media img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+.media-body {
+    margin-left: 15px; /* Adjusted for better spacing */
+}
+
+.media-body h5 {
+    margin-top: 8px; /* Adjust to vertically align with the avatar */
+    color: #333;
+}
+
+.media-body small {
+    display: block;
+    color: #999;
+}
+
+.media-body p {
+    color: #555;
+}
+
+.single-img-container {
+    text-align: center;
+}
+
+.single-img {
+    max-width: 100%;
+    height: auto;
+}
+
+.img-fluid {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.row {
+    margin-bottom: 15px; /* Add spacing between rows */
+}
+
+.img-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -5px; /* Negative margin to counteract the 10px margin on children */
+}
+
+.img-row .col-6,
+.img-row .col-12 {
+    padding: 5px; /* Reduced padding for closer images */
+}
+
+.img-row img {
+    width: 100%;
+    height: 300px; /* Set a fixed height */
+    object-fit: cover;
+}
