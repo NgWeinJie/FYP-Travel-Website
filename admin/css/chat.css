@@ -1,0 +1,20 @@
+/* Admin Chat Interface */
+.session-item {
+    cursor: pointer;
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+}
+
+.session-item:hover {
+    background-color: #f0f0f0;
+}
+
+#user-sessions {
+    height: 150px;
+    overflow-y: scroll;
+}
+
+#chat-messages {
+    height: 300px;
+    overflow-y: scroll;
+}

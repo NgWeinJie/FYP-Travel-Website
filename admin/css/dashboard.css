@@ -2,12 +2,22 @@ body {
     padding-top: 20px;
 }
 
+
+/* Card styling */
 .card {
     border-radius: 10px;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 100%; /* Make sure each card takes up full height */
+    max-width: 100%; /* Ensure the card width is responsive */
+    margin-bottom: 20px;
 }
 
+/* Ensure the image fits and doesn't stretch the card */
 .card-img-top {
     height: 200px;
     object-fit: cover;
 }
+

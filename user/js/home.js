@@ -11,12 +11,219 @@ const firebaseConfig = {
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-
-// Reference to Firestore
 const db = firebase.firestore();
-const auth = firebase.auth(); // Firebase Authentication
+const auth = firebase.auth();
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOM fully loaded and parsed.");
+    let sessionId;
+    let liveChatListener = null;
+
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            sessionId = user.uid;
+            console.log("Authenticated user session ID:", sessionId);
+        } else {
+            sessionId = new Date().getTime().toString();
+            console.log("Guest user session ID:", sessionId);
+        }
+        attachEventListeners(sessionId);
+    });
+
+    function attachEventListeners(sessionId) {
+        const liveChatBtn = document.getElementById('live-chat-btn');
+        const chatHistoryBtn = document.getElementById('chat-history-btn');
+        const liveChatSection = document.getElementById('live-chat-section');
+        const chatHistorySection = document.getElementById('chat-history-section');
+
+        liveChatBtn.addEventListener('click', () => {
+            console.log("Live Chat button clicked.");
+            switchToLiveChat(sessionId);
+        });
+
+        chatHistoryBtn.addEventListener('click', async () => {
+            console.log("Chat History button clicked.");
+            await switchToChatHistory(sessionId);
+        });
+
+        document.getElementById('send-chat-btn').addEventListener('click', async () => {
+            const message = document.getElementById('chat-input').value;
+            if (message.trim() !== '') {
+                await createOrUpdateChatSession(sessionId);
+                await sendMessage(sessionId, message);
+            }
+        });
+
+        document.getElementById('end-chat-btn').addEventListener('click', async () => {
+            await endChatSession(sessionId);
+        });
+    }
+
+    function switchToLiveChat(sessionId) {
+        stopLiveChatListener(); 
+        clearMessages('chat-messages'); 
+
+        const liveChatSection = document.getElementById('live-chat-section');
+        const chatHistorySection = document.getElementById('chat-history-section');
+        liveChatSection.classList.add('active');
+        chatHistorySection.classList.remove('active');
+        liveChatSection.style.display = 'block';
+        chatHistorySection.style.display = 'none';
+
+        startLiveChatListener(sessionId); 
+    }
+
+    async function switchToChatHistory(sessionId) {
+        stopLiveChatListener(); 
+        clearMessages('chat-history'); 
+
+        const liveChatSection = document.getElementById('live-chat-section');
+        const chatHistorySection = document.getElementById('chat-history-section');
+        liveChatSection.classList.remove('active');
+        chatHistorySection.classList.add('active');
+        liveChatSection.style.display = 'none';
+        chatHistorySection.style.display = 'block';
+
+        await loadChatHistory(sessionId); 
+    }
+
+    function startLiveChatListener(sessionId) {
+        const chatMessages = document.getElementById('chat-messages');
+
+        liveChatListener = db.collection('messages')
+            .where('sessionId', '==', sessionId)
+            .orderBy('timestamp')
+            .onSnapshot(snapshot => {
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === 'added') {
+                        const msg = change.doc.data();
+                        appendMessage(chatMessages, msg);
+                    }
+                });
+            });
+    }
+
+    function stopLiveChatListener() {
+        if (liveChatListener) {
+            liveChatListener(); 
+        }
+    }
+
+    async function loadChatHistory(sessionId) {
+        const chatHistoryContainer = document.getElementById('chat-history');
+
+        try {
+            const snapshot = await db.collection('messages')
+                                     .where('sessionId', '==', sessionId)
+                                     .orderBy('timestamp', 'asc')
+                                     .get();
+
+            if (snapshot.empty) {
+                console.log("No chat history found for session:", sessionId);
+                chatHistoryContainer.textContent = 'No chat history found.';
+                return;
+            }
+
+            snapshot.forEach(doc => {
+                const msg = doc.data();
+                appendMessage(chatHistoryContainer, msg);
+            });
+
+        } catch (error) {
+            console.error("Error loading chat history for session:", sessionId, "Error:", error);
+            chatHistoryContainer.textContent = 'Unable to load chat history at the moment.';
+        }
+    }
+
+    async function createOrUpdateChatSession(sessionId) {
+        const chatSessionRef = db.collection('chat_sessions').doc(sessionId);
+        const chatSessionDoc = await chatSessionRef.get();
+
+        if (!chatSessionDoc.exists) {
+            await chatSessionRef.set({
+                sessionId: sessionId,
+                status: 'active',
+                lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        } else {
+            await chatSessionRef.update({
+                status: 'active',
+                lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+    }
+
+    async function sendMessage(sessionId, message) {
+        await db.collection('messages').add({
+            text: message,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            sender: 'user',
+            sessionId: sessionId
+        });
+        document.getElementById('chat-input').value = '';
+        updateQueueLength(sessionId);
+    }
+
+    async function endChatSession(sessionId) {
+        await db.collection('chat_sessions').doc(sessionId).update({
+            status: 'ended',
+            endedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        document.getElementById('chat-box').classList.add('d-none');
+        stopLiveChatListener(); 
+    }
+
+    function updateQueueLength(sessionId) {
+        const queueInfoElement = document.getElementById('queue-info');
+
+        db.collection('chat_sessions')
+            .where('status', '==', 'active')
+            .orderBy('lastMessageAt', 'asc')
+            .onSnapshot(snapshot => {
+                const sessions = snapshot.docs.map(doc => doc.data());
+                const positionInQueue = sessions.findIndex(session => session.sessionId === sessionId) + 1;
+                if (positionInQueue > 1) {
+                    queueInfoElement.textContent = `There are ${positionInQueue - 1} user(s) ahead of you in the queue.`;
+                    queueInfoElement.style.display = 'block';
+                } else {
+                    queueInfoElement.style.display = 'none';
+                }
+            }, error => {
+                console.error("Error loading chat queue: ", error);
+                queueInfoElement.textContent = 'Unable to load queue info at the moment.';
+                queueInfoElement.style.display = 'block';
+            });
+    }
+
+    function appendMessage(container, msg) {
+        const msgElement = document.createElement('div');
+        msgElement.classList.add('chat-message');
+        msgElement.textContent = msg.sender === 'user' 
+            ? `You: ${msg.text}` 
+            : `Admin: ${msg.text}`;
+        container.appendChild(msgElement);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function clearMessages(containerId) {
+        const container = document.getElementById(containerId);
+        if (container) {
+            container.innerHTML = '';
+        }
+    }
+
+    let inactivityTimeout;
+    function resetInactivityTimeout() {
+        clearTimeout(inactivityTimeout);
+        inactivityTimeout = setTimeout(() => {
+            document.getElementById('end-chat-btn').click();
+        }, 600000);
+    }
+
+    document.addEventListener('mousemove', resetInactivityTimeout);
+    document.addEventListener('keypress', resetInactivityTimeout);
+    resetInactivityTimeout();
+    
     // Function to create the media element
     function createMediaElement(images) {
         const fallbackIndex = 1;
@@ -113,33 +320,6 @@ document.addEventListener('DOMContentLoaded', () => {
             container.innerHTML = "<p>Error loading attractions. Please try again later.</p>";
         }
     }
-
-    // Scroll to the specified section
-    function scrollToSection(sectionId) {
-        const section = document.getElementById(sectionId);
-        if (section) {
-            section.scrollIntoView({ behavior: 'smooth' });
-        }
-    }
-
-    const kualaLumpurLink = document.getElementById('kuala-lumpur-link');
-    if (kualaLumpurLink) {
-        kualaLumpurLink.addEventListener('click', () => {
-            scrollToSection('kuala-lumpur-section');
-        });
-    }
-
-    const penangLink = document.getElementById('penang-link');
-    if (penangLink) {
-        penangLink.addEventListener('click', () => {
-            scrollToSection('penang-section');
-        });
-    }
-
-    // Fetch attractions on page load
-    fetchAttractionsByState('KL', 'kuala-lumpur-attractions');
-    fetchAttractionsByState('Penang', 'penang-attractions');
-    getRecommendations();
 
     // Handle like and dislike button clicks
     async function handleLikeDislikeClick(event) {
@@ -307,22 +487,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Back to Top Button
-    document.addEventListener('scroll', function() {
-        const backToTopButton = document.getElementById('backToTop');
-        if (window.scrollY > 300) { // Show button after scrolling down 300px
-            backToTopButton.style.display = 'block';
-        } else {
-            backToTopButton.style.display = 'none';
+    // Scroll to the specified section
+    function scrollToSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        if (section) {
+            section.scrollIntoView({ behavior: 'smooth' });
         }
-    });
+    }
 
-    const backToTop = document.getElementById('backToTop');
-    if (backToTop) {
-        backToTop.addEventListener('click', function() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+    const kualaLumpurLink = document.getElementById('kuala-lumpur-link');
+    if (kualaLumpurLink) {
+        kualaLumpurLink.addEventListener('click', () => {
+            scrollToSection('kuala-lumpur-section');
         });
     }
+
+    const penangLink = document.getElementById('penang-link');
+    if (penangLink) {
+        penangLink.addEventListener('click', () => {
+            scrollToSection('penang-section');
+        });
+    }
+
+    // Fetch attractions on page load
+    fetchAttractionsByState('KL', 'kuala-lumpur-attractions');
+    fetchAttractionsByState('Penang', 'penang-attractions');
+    getRecommendations();
 
     // Fetch recommendations for the user
     async function getRecommendations() {
@@ -581,4 +771,9 @@ document.addEventListener('DOMContentLoaded', () => {
             searchAttractions(query);
         });
     }
+
+    // User chat widget toggle
+    document.getElementById('open-chat-btn').addEventListener('click', () => {
+        document.getElementById('chat-box').classList.toggle('d-none');
+    });
 });
