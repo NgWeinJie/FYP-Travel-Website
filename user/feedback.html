@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Feedback</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="css/blog.css">
-    <link rel="stylesheet" href="css/header.css">
+    <link href="css/feedback.css" rel="stylesheet">
+    <link href="css/header.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Header -->
+    <!-- Top Header with logo, search bar, and icons -->
     <div class="top-header bg-white text-ffaa33">
         <div class="container d-flex justify-content-between align-items-center py-2">
             <div class="logo">
-                <img src="../image/logo1.png" alt="Website Logo" class="logo-img">
+                <img src="../image/logo.png" alt="Website Logo" class="logo-img">
             </div>
             <div class="search-bar input-group">
                 <input type="text" class="form-control" placeholder="Search...">
@@ -72,23 +72,41 @@
         </div>
     </nav>
 
-    <!-- Blog Content -->
-    <div class="container my-4">
-        <div id="postForm" class="mb-4">
-            <textarea class="form-control" id="postContent" rows="3" placeholder="Share your experience..."></textarea>
-            <input type="file" id="postMedia" multiple>
-            <button class="btn btn-primary mt-2" id="postButton">Post</button>
-        </div>
-        <div id="posts" class="mb-4">
-            <!-- User posts will be dynamically added here -->
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-custom">
+                        <h4 class="mb-0">Feedback Form</h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="feedbackForm">
+                            <div class="form-group">
+                                <label for="subject">Subject</label>
+                                <input type="text" class="form-control" id="subject" required>
+                                <div class="text-danger error d-none" id="subjectError"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="message">Feedback Message</label>
+                                <textarea class="form-control" id="message" rows="5" required></textarea>
+                                <div class="text-danger error d-none" id="messageError"></div>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Submit Feedback</button>
+                            <div class="text-success mt-3 d-none" id="successMessage">Thank you for your feedback!</div>
+                            <div class="text-danger mt-3 d-none" id="formError">Error submitting feedback. Please try again.</div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-storage.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-auth.js"></script>
-    <script src="js/blog.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <script src="js/feedback.js"></script>
 </body>
 </html>
