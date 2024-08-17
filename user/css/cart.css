@@ -56,3 +56,29 @@ h2, h3 {
     width: 40px;
 }
 
+/* General Styles */
+.promo-code-section {
+    max-width: 100%;
+}
+
+.promo-code-section input {
+    flex-grow: 1;
+}
+
+.promo-code-section .form-control {
+    width: auto;
+}
+
+.text-right {
+    text-align: right;
+}
+
+/* Ensure buttons have spacing between them */
+#clearCart {
+    margin-top: 10px;
+}
+
+.me-2 {
+    margin-right: 0.5rem;
+}
+

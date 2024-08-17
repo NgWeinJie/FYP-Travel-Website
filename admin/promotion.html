@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Promotion Management</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/promotion.css">
+</head>
+<body>
+
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Promotion Management</h1>
+        
+        <!-- Promotion Form -->
+        <div class="card mb-4">
+            <div class="card-header">Add New Promotion</div>
+            <div class="card-body">
+                <form id="promotionForm">
+                    <!-- Other form fields -->
+                    <div class="form-group">
+                        <label for="promoCode">Promo Code</label>
+                        <input type="text" class="form-control" id="promoCode" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="discountAmount">Discount Amount</label>
+                        <input type="number" class="form-control" id="discountAmount" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="minSpend">Minimum Spend Amount (RM)</label>
+                        <input type="number" class="form-control" id="minSpend" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="startDateTime">Start Date & Time</label>
+                        <input type="datetime-local" class="form-control" id="startDateTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="endDateTime">End Date & Time</label>
+                        <input type="datetime-local" class="form-control" id="endDateTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="slideImage">Slide Image</label>
+                        <input type="file" class="form-control-file" id="slideImage" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Promotion</button>
+                </form>
+            </div>
+        </div>
+    
+        <!-- Existing Promotions -->
+        <div class="card">
+            <div class="card-header">Existing Promotions</div>
+            <div class="card-body">
+                <div id="promotionList" class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Promo Code</th>
+                                <th>Discount</th>
+                                <th>Min Spend (MYR)</th>
+                                <th>Start Date & Time</th>
+                                <th>End Date & Time</th>
+                                <th>Slide Image</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Promotions will be dynamically added here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Promotion Modal -->
+    <div class="modal fade" id="editPromotionModal" tabindex="-1" aria-labelledby="editPromotionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editPromotionModalLabel">Edit Promotion</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editPromotionForm">
+                        <!-- Other form fields -->
+                        <div class="form-group">
+                            <label for="editPromoCode">Promo Code</label>
+                            <input type="text" class="form-control" id="editPromoCode" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editDiscountAmount">Discount Amount</label>
+                            <input type="number" class="form-control" id="editDiscountAmount" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editMinSpend">Minimum Spend Amount (RM)</label>
+                            <input type="number" class="form-control" id="editMinSpend" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editStartDateTime">Start Date & Time</label>
+                            <input type="datetime-local" class="form-control" id="editStartDateTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editEndDateTime">End Date & Time</label>
+                            <input type="datetime-local" class="form-control" id="editEndDateTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editSlideImage">Slide Image</label>
+                            <input type="file" class="form-control-file" id="editSlideImage">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-storage.js"></script>
+<script src="js/promotion.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

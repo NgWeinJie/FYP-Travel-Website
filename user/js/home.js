@@ -776,4 +776,48 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('open-chat-btn').addEventListener('click', () => {
         document.getElementById('chat-box').classList.toggle('d-none');
     });
+
+    // Fetch and display the promotion slide
+    async function loadPromotionSlide() {
+        try {
+            const promotionsRef = db.collection('promotions');
+            const promotionSnapshot = await promotionsRef.get(); // Fetch all promotion slides
+
+            if (!promotionSnapshot.empty) {
+                let slideContent = '';
+                let isActive = true;
+
+                promotionSnapshot.forEach((doc) => {
+                    const promotionData = doc.data();
+                    const slideImageUrl = promotionData.slideImageUrl;
+
+                    slideContent += `
+                        <div class="carousel-item ${isActive ? 'active' : ''}">
+                            <img src="${slideImageUrl}" class="d-block w-100" alt="Promotion Slide">
+                        </div>
+                    `;
+                    isActive = false; // Only the first slide should be active
+                });
+
+                // Insert the slides into the carousel
+                const carouselItemsContainer = document.getElementById('carouselItems');
+                carouselItemsContainer.innerHTML = slideContent;
+
+                // Enable auto-scroll if more than one slide
+                const promotionCarousel = document.getElementById('promotionCarousel');
+                if (promotionSnapshot.size > 1) {
+                    $(promotionCarousel).carousel({
+                        interval: 5000 // 5 seconds interval
+                    });
+                }
+            } else {
+                console.log("No promotion slides found.");
+            }
+        } catch (error) {
+            console.error("Error loading promotion slide:", error);
+        }
+    }
+
+    // Call the function to load the promotion slide
+    loadPromotionSlide();
 });

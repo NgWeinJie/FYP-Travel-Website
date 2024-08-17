@@ -105,7 +105,7 @@ async function displayCartItems() {
 
         if (cartItems.length === 0) {
             cartItemsContainer.innerHTML = "<p>Your cart is empty.</p>";
-            subtotalElement.textContent = "0.00 MYR";
+            subtotalElement.textContent = "RM 0.00";
             return;
         }
 
@@ -135,7 +135,7 @@ async function displayCartItems() {
                                 Malaysian Adult
                             </div>
                             <div class="col-md-4">
-                                MYR ${price.toFixed(2)}
+                                RM ${price.toFixed(2)}
                             </div>
                             <div class="col-md-4 d-flex align-items-center">
                                 <button class="btn btn-secondary btn-sm" onclick="changeQuantity('${item.id}', 'MalaysianAdult', -1)">-</button>
@@ -158,7 +158,7 @@ async function displayCartItems() {
                                 Malaysian Child
                             </div>
                             <div class="col-md-4">
-                                MYR ${price.toFixed(2)}
+                                RM ${price.toFixed(2)}
                             </div>
                             <div class="col-md-4 d-flex align-items-center">
                                 <button class="btn btn-secondary btn-sm" onclick="changeQuantity('${item.id}', 'MalaysianChild', -1)">-</button>
@@ -181,7 +181,7 @@ async function displayCartItems() {
                                 Non-Malaysian Adult
                             </div>
                             <div class="col-md-4">
-                                MYR ${price.toFixed(2)}
+                                RM ${price.toFixed(2)}
                             </div>
                             <div class="col-md-4 d-flex align-items-center">
                                 <button class="btn btn-secondary btn-sm" onclick="changeQuantity('${item.id}', 'NonMalaysianAdult', -1)">-</button>
@@ -204,7 +204,7 @@ async function displayCartItems() {
                                 Non-Malaysian Child
                             </div>
                             <div class="col-md-4">
-                                MYR ${price.toFixed(2)}
+                                RM ${price.toFixed(2)}
                             </div>
                             <div class="col-md-4 d-flex align-items-center">
                                 <button class="btn btn-secondary btn-sm" onclick="changeQuantity('${item.id}', 'NonMalaysianChild', -1)">-</button>
@@ -240,7 +240,7 @@ async function displayCartItems() {
 
         const html = (await Promise.all(promises)).join('');
         cartItemsContainer.innerHTML = html;
-        subtotalElement.textContent = `${subtotal.toFixed(2)} MYR`;
+        subtotalElement.textContent = `RM ${subtotal.toFixed(2)} `;
     } catch (error) {
         console.error('Error displaying cart items:', error);
     }
@@ -292,3 +292,70 @@ async function handleClearCart() {
 document.addEventListener('DOMContentLoaded', () => {
     displayCartItems();
 });
+
+// Function to apply promo code
+async function applyPromoCode() {
+    const promoCodeInput = document.getElementById('promoCode').value.trim().toUpperCase();
+    const promoMessage = document.getElementById('promoMessage');
+    promoMessage.textContent = ''; // Clear previous messages
+
+    if (!promoCodeInput) {
+        promoMessage.textContent = 'Please enter a promo code.';
+        return;
+    }
+
+    try {
+        const promoCodeSnapshot = await db.collection('promotions').where('promoCode', '==', promoCodeInput).get();
+
+        if (promoCodeSnapshot.empty) {
+            promoMessage.textContent = 'Invalid promo code.';
+            return;
+        }
+
+        const promoData = promoCodeSnapshot.docs[0].data();
+        const now = new Date();
+        const startDate = promoData.startDateTime.toDate();
+        const endDate = promoData.endDateTime.toDate();
+        const subtotal = parseFloat(document.getElementById('subtotal').textContent.replace('RM', '').trim());
+
+        if (now < startDate) {
+            promoMessage.textContent = 'Promo code is not yet valid.';
+            return;
+        }
+        if (now > endDate) {
+            promoMessage.textContent = 'Promo code has expired.';
+            return;
+        }
+        if (subtotal < promoData.minSpend) {
+            promoMessage.textContent = `Minimum spend amount is RM ${promoData.minSpend.toFixed(2)}.`;
+            return;
+        }
+
+        // Apply flat discount
+        const discountAmount = promoData.discountAmount || 0;
+        const newSubtotal = Math.max(subtotal - discountAmount, 0); // Ensure subtotal doesn't go below 0
+        document.getElementById('subtotal').textContent = `RM ${newSubtotal.toFixed(2)}`;
+        promoMessage.textContent = `Promo code applied! Discount: RM ${discountAmount.toFixed(2)}`;
+
+    } catch (error) {
+        console.error('Error applying promo code:', error);
+        promoMessage.textContent = 'An error occurred. Please try again.';
+    }
+}
+
+
+// Example function to fetch promo codes (add to Firebase Firestore)
+async function fetchPromotions() {
+    try {
+        const promoSnapshot = await db.collection('promotions').get();
+        const promotions = promoSnapshot.docs.map(doc => doc.data());
+        console.log(promotions);
+        return promotions;
+    } catch (error) {
+        console.error('Error fetching promotions:', error);
+    }
+}
+
+function checkout() {
+    window.location.href = 'payment.html';
+}

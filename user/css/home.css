@@ -188,3 +188,39 @@ body {
     display: none; /* Ensure the inactive section is hidden */
 }
 
+
+/* Promotion Slide */
+#promotion-slide {
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+    position: relative; 
+}
+
+/* Adjust the image inside the promotion slide */
+#promotion-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Add a maximum height to prevent extremely large images */
+#promotion-slide img {
+    max-height: 800px; 
+}
+
+/* Ensure the slide remains responsive */
+@media (max-width: 768px) {
+    #promotion-slide img {
+        max-height: 300px; 
+    }
+}
+
+
+
+
+
+
+
+

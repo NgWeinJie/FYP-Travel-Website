@@ -62,7 +62,6 @@ function createMediaElementFromUrls(urls) {
     `).join('');
 }
 
-
 function createReviewElement(review) {
     const date = review.timestamp.toDate();  // Convert Firestore Timestamp to JS Date
     return `
@@ -80,7 +79,6 @@ function createReviewElement(review) {
         </div>
     `;
 }
-
 
 function createReplyElement(reply) {
     const date = reply.timestamp.toDate();  // Convert Firestore Timestamp to JS Date
@@ -301,6 +299,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('attraction-details').innerHTML = detailsHTML;
 
         fetchReviews(attractionId);
+
+        // Date restriction logic
+        const visitDateInput = document.getElementById('visitDate');
+        const today = new Date();
+        const threeMonthsLater = new Date(today.getFullYear(), today.getMonth() + 3, today.getDate());
+
+        // Format dates to YYYY-MM-DD
+        const formatDate = (date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+
+        visitDateInput.setAttribute('min', formatDate(today));
+        visitDateInput.setAttribute('max', formatDate(threeMonthsLater));
 
         document.getElementById('visitDate').addEventListener('change', calculateTotal);
         document.querySelectorAll('#ticketing .form-control').forEach(el => {

@@ -1,0 +1,46 @@
+body {
+    font-family: 'Arial', sans-serif;
+}
+
+h2 {
+    color: #FFAA33;
+}
+
+.order-summary {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.order-summary p {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+.btn-primary {
+    background-color: #FFAA33;
+    border-color: #FFAA33;
+}
+
+.btn-primary:hover {
+    background-color: #e6952b;
+    border-color: #e6952b;
+}
+
+input[type="text"], input[type="email"], input[type="tel"] {
+    border-radius: 5px;
+}
+
+.navbar-light .navbar-nav .nav-link {
+    color: #fff;
+}
+
+.top-header .search-bar .form-control {
+    border-radius: 0;
+}
+
+.top-header .search-bar .input-group-append .btn {
+    background-color: #FFAA33;
+    border-color: #FFAA33;
+    color: #fff;
+}
