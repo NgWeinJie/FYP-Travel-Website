@@ -90,14 +90,7 @@ async function fetchUserDetails(userId) {
     }
 }
 
-// Function to display user details in the form
-function displayUserDetails(userDetails) {
-    document.getElementById('firstName').value = userDetails.firstName || '';
-    document.getElementById('lastName').value = userDetails.lastName || '';
-    document.getElementById('email').value = userDetails.email || '';
-    document.getElementById('contactNumber').value = userDetails.contactNumber || '';
-}
-
+// Function to display cart items and calculate total
 // Function to display cart items and calculate total
 async function displayPaymentDetails(cartData) {
     const paymentItemsContainer = document.getElementById('paymentItems');
@@ -110,7 +103,7 @@ async function displayPaymentDetails(cartData) {
         return;
     }
 
-    const { quantities, attractionId, visitDate, totalAmount } = cartData;
+    const { quantities, attractionId, visitDate } = cartData;
     const attractionDoc = await db.collection('attractions').doc(attractionId).get();
 
     if (!attractionDoc.exists) {
@@ -121,20 +114,35 @@ async function displayPaymentDetails(cartData) {
     }
 
     const attractionData = attractionDoc.data();
+    let imageDisplayed = false;
+
     const itemsHTML = Object.keys(quantities).map(type => {
         const quantity = quantities[type];
         if (quantity > 0) {
-            const price = getPriceForType(attractionData, type);
+            let price = getPriceForType(attractionData, type);
+            price = price ? price : 0;  // Ensure price is a number
             const itemTotal = price * quantity;
             total += itemTotal;
 
+            const imageHTML = !imageDisplayed ? `
+                <div class="col-md-3">
+                    <img src="${attractionData.images[0]}" class="img-fluid" alt="${attractionData.destinationName}">
+                </div>` : '<div class="col-md-3"></div>'; // Empty div to maintain structure
+
+            imageDisplayed = true; // Ensure the image is only displayed once
+
             return `
                 <div class="cart-item">
-                    <h5>${attractionData.destinationName} - ${formatType(type)}</h5>
-                    <p>Quantity: ${quantity}</p>
-                    <p>Price: RM ${price.toFixed(2)}</p>
-                    <p>Subtotal: RM ${itemTotal.toFixed(2)}</p>
-                    <p>Date of Visit: ${visitDate}</p>
+                    <div class="row">
+                        ${imageHTML}
+                        <div class="col-md-9">
+                            <h5>${attractionData.destinationName} - ${formatType(type)}</h5>
+                            <p>Quantity: ${quantity}</p>
+                            <p>Price: RM ${price.toFixed(2)}</p>
+                            <p>Subtotal: RM ${itemTotal.toFixed(2)}</p>
+                            <p>Date of Visit: ${visitDate}</p>
+                        </div>
+                    </div>
                 </div>
             `;
         }
@@ -146,17 +154,18 @@ async function displayPaymentDetails(cartData) {
     document.getElementById('totalAmount').textContent = `RM ${total.toFixed(2)}`;
 }
 
+
 // Function to get the price for a specific ticket type
 function getPriceForType(attractionData, type) {
     switch (type) {
         case 'MalaysianAdult':
-            return attractionData.ticketPriceMalaysianAdult || 0;
+            return parseFloat(attractionData.ticketPriceMalaysianAdult) || 0;
         case 'MalaysianChild':
-            return attractionData.ticketPriceMalaysianChild || 0;
+            return parseFloat(attractionData.ticketPriceMalaysianChild) || 0;
         case 'NonMalaysianAdult':
-            return attractionData.ticketPriceNonMalaysianAdult || 0;
+            return parseFloat(attractionData.ticketPriceNonMalaysianAdult) || 0;
         case 'NonMalaysianChild':
-            return attractionData.ticketPriceNonMalaysianChild || 0;
+            return parseFloat(attractionData.ticketPriceNonMalaysianChild) || 0;
         default:
             return 0;
     }
@@ -204,4 +213,18 @@ document.getElementById('userDetailsForm').addEventListener('submit', async (e) 
 function makePayment() {
     alert('Payment process started!');
     // Implement your payment processing logic here.
+}
+
+// Function to display user details on the payment page
+function displayUserDetails(userDetails) {
+    if (!userDetails) {
+        console.error('No user details provided.');
+        return;
+    }
+
+    // Fill the form fields with the fetched user details
+    document.getElementById('firstName').value = userDetails.firstName || '';
+    document.getElementById('lastName').value = userDetails.lastName || '';
+    document.getElementById('email').value = userDetails.email || '';
+    document.getElementById('contactNumber').value = userDetails.contactNumber || '';
 }
