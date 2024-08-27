@@ -44,3 +44,76 @@ input[type="text"], input[type="email"], input[type="tel"] {
     border-color: #FFAA33;
     color: #fff;
 }
+
+.spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.spinner {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #FFAA33; /* Adjust color to match your theme */
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.spinner-overlay p {
+    color: white;
+    margin-top: 15px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.order-summary {
+    margin-top: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+#paymentItems .cart-item {
+    margin-bottom: 20px;
+}
+
+#subtotal, #appliedPromo, #discountAmount, #totalAmount {
+    display: inline-block;
+    width: 100px;
+}
+
+.custom-control-input:disabled ~ .custom-control-label {
+    color: #ccc; /* Color for disabled switch label */
+}
+
+.custom-control-input:disabled {
+    cursor: not-allowed;
+}
+
+.custom-control-input:disabled ~ .custom-control-label::before {
+    background-color: #ccc; /* Background for disabled switch */
+}
+
+#redeemCoinsInfo {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+#redeemCoinsInfo .fa-coins {
+    color: #FFD700; /* Gold color for coins */
+    margin-left: 5px;
+}

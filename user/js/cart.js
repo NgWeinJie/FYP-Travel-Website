@@ -337,11 +337,19 @@ async function applyPromoCode() {
         document.getElementById('subtotal').textContent = `RM ${newSubtotal.toFixed(2)}`;
         promoMessage.textContent = `Promo code applied! Discount: RM ${discountAmount.toFixed(2)}`;
 
+        // Store promo code details in sessionStorage for payment page
+        sessionStorage.setItem('appliedPromoCode', JSON.stringify({
+            code: promoCodeInput,
+            discount: discountAmount
+        }));
+
     } catch (error) {
         console.error('Error applying promo code:', error);
         promoMessage.textContent = 'An error occurred. Please try again.';
     }
 }
+
+
 
 
 // Example function to fetch promo codes (add to Firebase Firestore)
