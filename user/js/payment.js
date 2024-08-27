@@ -198,10 +198,7 @@ async function displayPaymentDetails(cartDataArray) {
 
     paymentItemsContainer.innerHTML = itemsHTML.join('');
     document.getElementById('subtotal').textContent = `RM ${subtotal.toFixed(2)}`;
-    // Update the dataset for original subtotal (without discounts)
     document.getElementById('subtotal').dataset.originalSubtotal = subtotal.toFixed(2);
-
-    // Update total amount right after displaying payment details
     updateTotalAmount();
 }
 
@@ -244,23 +241,62 @@ function updateTotalAmount() {
     const redeemSwitch = document.getElementById('redeemCoinsSwitch');
     const userCoins = parseFloat(document.getElementById('redeemCoinsInfo').textContent.replace(/\D/g, '')) || 0;
 
-    // Calculate the coins discount (1 coin = RM 0.01)
     const coinsDiscount = redeemSwitch.checked ? Math.min(userCoins * 0.01, subtotal) : 0;
-
-    // Calculate the final total amount after applying the promo and coin discounts
     const finalTotal = subtotal - promoDiscount - coinsDiscount;
     document.getElementById('totalAmount').textContent = `RM ${finalTotal.toFixed(2)}`;
 
-    // Calculate the coins earned based on the final total (RM 0.01 per coin)
     const coinsEarned = Math.floor(finalTotal);
-
-    // Calculate the new coin balance:
-    // New balance = (Current coins - Redeemed coins) + Earned coins
     const newCoinsBalance = (userCoins - Math.floor(coinsDiscount / 0.01)) + coinsEarned;
-
 }
 
-// Function to handle payment and process the order
+// Function to generate a QR code
+function generateQRCode(text) {
+    return new Promise((resolve, reject) => {
+        QRCode.toDataURL(text, { errorCorrectionLevel: 'H' }, (err, url) => {
+            if (err) reject(err);
+            resolve(url);
+        });
+    });
+}
+
+// Function to generate a ticket and download as PDF
+async function generateTicketsPDF(user, items) {
+    try {
+        const { jsPDF } = window.jspdf; // Ensure jsPDF is loaded from the library
+
+        const doc = new jsPDF(); // Create a new jsPDF instance
+
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            const qrCodeData = `Attraction: ${item.attractionName}, Type: ${item.ticketType}, Date: ${item.visitDate}`;
+            const qrCodeURL = await generateQRCode(qrCodeData);
+
+            if (i > 0) {
+                doc.addPage(); // Add a new page for each ticket after the first
+            }
+
+            doc.setFontSize(16);
+            doc.text('Thank you for your purchase!', 20, 20);
+            doc.setFontSize(12);
+            doc.text(`Attraction: ${item.attractionName}`, 20, 30);
+            doc.text(`Type: ${item.ticketType}`, 20, 40);
+            doc.text(`Date of Visit: ${item.visitDate}`, 20, 50);
+            doc.text('Show this QR code at the entrance:', 20, 60);
+
+            // Add QR code image to the PDF
+            doc.addImage(qrCodeURL, 'JPEG', 20, 70, 50, 50);
+        }
+
+        // Save the PDF after all pages are added
+        const fileName = `Tickets_${user.uid}.pdf`;
+        doc.save(fileName);
+
+    } catch (error) {
+        console.error('Error generating ticket PDF:', error);
+    }
+}
+
+// Modified processPayment function to include single PDF download
 async function processPayment() {
     try {
         const user = await getCurrentUser();
@@ -270,57 +306,55 @@ async function processPayment() {
         const coinsDiscount = redeemSwitch.checked ? Math.min(userCoins * 0.01, parseFloat(totalAmountElement.textContent.replace('RM', '').trim())) : 0;
         const finalTotal = parseFloat(totalAmountElement.textContent.replace('RM', '').trim());
 
-        // Prepare order data
         const orderData = {
             userId: user.uid,
-            totalAmount: parseFloat(document.getElementById('subtotal').dataset.originalSubtotal),  // Store subtotal before discounts
-            finalAmount: finalTotal, // Store final total after discounts
+            totalAmount: parseFloat(document.getElementById('subtotal').dataset.originalSubtotal),
+            finalAmount: finalTotal,
             promoCode: document.getElementById('appliedPromo').textContent,
             promoDiscount: parseFloat(document.getElementById('discountAmount').textContent.replace('RM', '').trim()) || 0,
-            coinsDiscount: coinsDiscount, // Correctly storing the coins discount value
-            items: [], // Will fill in below
+            coinsDiscount: coinsDiscount,
+            items: [],
             userDetails: await fetchUserDetails(user.uid),
             orderDate: new Date(),
         };
 
-        // Fetch and format cart data
         const cartDataArray = await fetchCartData(user.uid);
+        let itemsForPDF = []; // Collect all items for PDF generation
+
         for (let cartData of cartDataArray) {
             const attractionDoc = await db.collection('attractions').doc(cartData.attractionId).get();
             if (attractionDoc.exists) {
                 const attractionData = attractionDoc.data();
-                Object.keys(cartData.quantities).forEach(type => {
+                for (let type of Object.keys(cartData.quantities)) {
                     if (cartData.quantities[type] > 0) {
                         const price = getPriceForType(attractionData, type);
-                        orderData.items.push({
+                        const item = {
                             attractionId: cartData.attractionId,
                             attractionName: attractionData.destinationName,
                             ticketType: formatType(type),
                             quantity: cartData.quantities[type],
                             price: price,
                             visitDate: cartData.visitDate,
-                        });
+                        };
+                        orderData.items.push(item);
+
+                        // Collect items for generating a single PDF
+                        itemsForPDF.push(item);
                     }
-                });
+                }
             } else {
                 console.error(`Attraction ID ${cartData.attractionId} not found.`);
             }
         }
 
-        // Store the order in Firestore
         await db.collection('orders').add(orderData);
 
-        // Calculate new coins balance
         const newCoinBalance = redeemSwitch.checked
             ? (userCoins - Math.floor(coinsDiscount / 0.01)) + Math.floor(finalTotal)
             : userCoins + Math.floor(finalTotal);
 
-        // Update user coin balance in Firestore
-        await db.collection('users').doc(user.uid).update({
-            coins: newCoinBalance
-        });
+        await db.collection('users').doc(user.uid).update({ coins: newCoinBalance });
 
-        // Clear cart items after successful order
         const cartSnapshot = await db.collection('carts').where('userId', '==', user.uid).get();
         const batch = db.batch();
         cartSnapshot.forEach(doc => {
@@ -328,10 +362,12 @@ async function processPayment() {
         });
         await batch.commit();
 
-        // Clear sessionStorage after payment
         sessionStorage.removeItem('appliedPromoCode');
 
-        alert('Payment Successful!');
+        // Generate a single PDF with all tickets on separate pages
+        await generateTicketsPDF(user, itemsForPDF);
+
+        alert('Payment and Ticket Generation Successful!');
         window.location.href = 'home.html';
     } catch (error) {
         console.error('Error processing payment:', error);
@@ -339,12 +375,11 @@ async function processPayment() {
     }
 }
 
+
+
 // Function to process DuitNow QR Payment
 function processDuitnowPayment() {
-    // Simulate the payment process
     alert("DuitNow payment has been processed successfully!");
-
-    // After payment processing, finalize the order
     processPayment();
 }
 
@@ -444,7 +479,6 @@ function setupRedeemCoins(userCoins) {
     const redeemSwitch = document.getElementById('redeemCoinsSwitch');
     const redeemCoinsInfo = document.getElementById('redeemCoinsInfo');
 
-    // Ensure userCoins is a valid number, default to 0 if not
     userCoins = Number.isFinite(userCoins) ? userCoins : 0;
 
     redeemCoinsInfo.innerHTML = `Redeem FlyOne Coins: ${userCoins} <i class="fas fa-coins"></i>`;
@@ -457,7 +491,6 @@ function setupRedeemCoins(userCoins) {
         redeemSwitch.checked = false;
     }
 
-    // Update total amount when the redeem switch is changed
     redeemSwitch.addEventListener('change', updateTotalAmount);
 }
 
@@ -487,4 +520,3 @@ function showPaymentModal() {
         $('#duitnowModal').modal('show');
     }
 }
-
