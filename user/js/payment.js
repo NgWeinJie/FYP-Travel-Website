@@ -13,6 +13,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
+const storage = firebase.storage();
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -259,13 +260,48 @@ function generateQRCode(text) {
     });
 }
 
-// Function to generate a ticket and download as PDF
+// Function to fetch image as Base64 from Firebase Storage
+async function getImageAsBase64FromFirebase(path) {
+    try {
+        const logoRef = storage.ref().child(path);
+        const url = await logoRef.getDownloadURL();
+        const response = await fetch(url, { mode: 'cors' }); // Ensure CORS mode is enabled
+        const blob = await response.blob();
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    } catch (error) {
+        console.error('Error fetching image from Firebase:', error);
+        throw error;
+    }
+}
+
+// Function to generate a single PDF with multiple pages for different tickets
 async function generateTicketsPDF(user, items) {
     try {
         const { jsPDF } = window.jspdf; // Ensure jsPDF is loaded from the library
 
         const doc = new jsPDF(); // Create a new jsPDF instance
 
+        // Function to center text
+        const centerText = (text, y, fontSize, fontStyle) => {
+            const width = doc.internal.pageSize.width;
+            doc.setFontSize(fontSize);
+            doc.setFont(fontStyle);
+            const textWidth = doc.getTextWidth(text);
+            doc.text(text, (width - textWidth) / 2, y);
+        };
+
+        // Function to center QR code
+        const centerQRCode = (qrCodeURL, y) => {
+            const width = doc.internal.pageSize.width;
+            doc.addImage(qrCodeURL, 'JPEG', (width - 50) / 2, y, 50, 50); // Center QR code horizontally
+        };
+
+        // Add content for each ticket
         for (let i = 0; i < items.length; i++) {
             const item = items[i];
             const qrCodeData = `Attraction: ${item.attractionName}, Type: ${item.ticketType}, Date: ${item.visitDate}`;
@@ -275,16 +311,20 @@ async function generateTicketsPDF(user, items) {
                 doc.addPage(); // Add a new page for each ticket after the first
             }
 
-            doc.setFontSize(16);
-            doc.text('Thank you for your purchase!', 20, 20);
-            doc.setFontSize(12);
-            doc.text(`Attraction: ${item.attractionName}`, 20, 30);
-            doc.text(`Type: ${item.ticketType}`, 20, 40);
-            doc.text(`Date of Visit: ${item.visitDate}`, 20, 50);
-            doc.text('Show this QR code at the entrance:', 20, 60);
+            doc.setTextColor("#FFAA33"); // Set text color
+            centerText('FlyOne Travel Explorer', 20, 24, 'bold'); // Larger and bold text
+
+            doc.setTextColor("#000000"); // Reset text color to black
+            centerText('Thank you for your purchase!', 30, 16, 'normal'); // Regular text
+
+            // Add attraction details
+            centerText(`Attraction: ${item.attractionName}`, 50, 16, 'normal');
+            centerText(`Type: ${item.ticketType}`, 60, 16, 'normal');
+            centerText(`Date of Visit: ${item.visitDate}`, 70, 16, 'normal');
+            centerText('Show this QR code at the entrance:', 80, 16, 'normal');
 
             // Add QR code image to the PDF
-            doc.addImage(qrCodeURL, 'JPEG', 20, 70, 50, 50);
+            centerQRCode(qrCodeURL, 90); // Center QR code at y = 90
         }
 
         // Save the PDF after all pages are added
@@ -296,7 +336,8 @@ async function generateTicketsPDF(user, items) {
     }
 }
 
-// Modified processPayment function to include single PDF download
+
+
 async function processPayment() {
     try {
         const user = await getCurrentUser();
@@ -347,14 +388,18 @@ async function processPayment() {
             }
         }
 
-        await db.collection('orders').add(orderData);
+        // Add the order to Firestore and get the order ID
+        const orderRef = await db.collection('orders').add(orderData);
+        const orderId = orderRef.id; // Fetch the newly created order ID
 
+        // Update user coins
         const newCoinBalance = redeemSwitch.checked
             ? (userCoins - Math.floor(coinsDiscount / 0.01)) + Math.floor(finalTotal)
             : userCoins + Math.floor(finalTotal);
 
         await db.collection('users').doc(user.uid).update({ coins: newCoinBalance });
 
+        // Clear the cart
         const cartSnapshot = await db.collection('carts').where('userId', '==', user.uid).get();
         const batch = db.batch();
         cartSnapshot.forEach(doc => {
@@ -365,7 +410,7 @@ async function processPayment() {
         sessionStorage.removeItem('appliedPromoCode');
 
         // Generate a single PDF with all tickets on separate pages
-        await generateTicketsPDF(user, itemsForPDF);
+        await generateTicketsPDF(user, itemsForPDF, orderId);
 
         alert('Payment and Ticket Generation Successful!');
         window.location.href = 'home.html';
@@ -374,6 +419,7 @@ async function processPayment() {
         alert('Payment failed, please try again.');
     }
 }
+
 
 
 
