@@ -1,0 +1,102 @@
+body {
+    font-family: 'Arial', sans-serif;
+}
+
+h2 {
+    color: #FFAA33;
+}
+
+.order-history {
+    margin-top: 20px;
+}
+
+.order-card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.order-card h4 {
+    color: #FFAA33;
+}
+
+.order-card p {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+.order-items {
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+.order-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.order-item img {
+    max-width: 100px;
+    margin-right: 15px;
+}
+
+.btn-primary {
+    background-color: #FFAA33;
+    border-color: #FFAA33;
+}
+
+.btn-primary:hover {
+    background-color: #e6952b;
+    border-color: #e6952b;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #FFAA33;
+    color: #fff;
+    border-color: #FFAA33;
+}
+
+/* Custom header for the order items table */
+.thead-custom {
+    background-color: #FFAA33;
+    color: white;
+}
+
+.order-card {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.order-item {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.order-item img {
+    max-width: 100px;
+    margin-right: 15px;
+}
+
+.order-summary {
+    text-align: right;
+    margin-top: 20px;
+}
+
+ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.nav-tabs .nav-link {
+    color: black !important; 
+}
+.nav-tabs .nav-link.active {
+    color: white !important;
+    background-color: #ffaa33;
+}
