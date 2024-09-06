@@ -61,19 +61,25 @@ async function deleteTicketType(cartId, type) {
             const data = doc.data();
             const updatedQuantities = { ...data.quantities };
             delete updatedQuantities[type];
-            if (Object.keys(updatedQuantities).length === 0) {
-                // If no ticket types remain, delete the cart item
+
+            // Check if all quantities are now 0
+            const areAllQuantitiesZero = Object.values(updatedQuantities).every(qty => qty === 0);
+
+            if (areAllQuantitiesZero) {
+                // If all quantities are zero, delete the entire cart item
                 await cartRef.delete();
             } else {
-                // Otherwise, update the cart item with remaining ticket types
+                // Otherwise, update the cart with remaining tickets
                 await cartRef.update({ quantities: updatedQuantities });
             }
+
             displayCartItems(); // Refresh the cart items display
         }
     } catch (error) {
         console.error('Error deleting ticket type:', error);
     }
 }
+
 
 // Clear all cart items
 async function clearCart(userId) {
@@ -258,16 +264,19 @@ async function changeQuantity(cartId, type, change) {
             const newQuantity = Math.max(0, currentQuantity + change);
 
             if (newQuantity === 0) {
-                delete updatedQuantities[type];
+                delete updatedQuantities[type]; // Remove the ticket type if quantity is zero
             } else {
-                updatedQuantities[type] = newQuantity;
+                updatedQuantities[type] = newQuantity; // Update with new quantity
             }
 
-            if (Object.keys(updatedQuantities).length === 0) {
-                // If no ticket types remain, delete the entire cart item
+            // Check if all quantities are now 0
+            const areAllQuantitiesZero = Object.values(updatedQuantities).every(qty => qty === 0);
+
+            if (areAllQuantitiesZero) {
+                // If all quantities are zero, delete the entire cart item
                 await cartRef.delete();
             } else {
-                // Otherwise, update the cart item with the remaining ticket types
+                // Otherwise, update the cart item with remaining ticket types
                 await cartRef.update({ quantities: updatedQuantities });
             }
 

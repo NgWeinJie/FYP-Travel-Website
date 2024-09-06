@@ -1,0 +1,29 @@
+/* Header Navigation Styling */
+header {
+    background-color: #FFAA33; /* Orange background */
+}
+
+header .navbar-nav {
+    display: flex;
+    justify-content: center;
+}
+
+header .nav-link {
+    color: white;
+    font-size: 18px;
+    margin: 0 15px;
+    text-transform: none;
+    font-weight: bold;
+}
+
+header .nav-link:hover {
+    color: #fff;
+    opacity: 0.8;
+}
+
+/* Responsive adjustments for the header */
+@media (max-width: 768px) {
+    header .nav-link {
+        font-size: 16px;
+    }
+}

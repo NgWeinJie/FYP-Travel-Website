@@ -1,7 +1,25 @@
+/* General body padding and font */
 body {
-    padding-top: 20px;
+    font-family: Arial, sans-serif;
 }
 
+
+
+/* Dashboard Content */
+h1 {
+    color: #333;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+/* Search Bar Styling */
+#searchBar {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
 
 /* Card styling */
 .card {
@@ -10,14 +28,86 @@ body {
     display: flex;
     flex-direction: column;
     flex: 1;
-    min-height: 100%; /* Make sure each card takes up full height */
-    max-width: 100%; /* Ensure the card width is responsive */
+    min-height: 100%;
+    max-width: 100%;
     margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
 }
 
-/* Ensure the image fits and doesn't stretch the card */
 .card-img-top {
     height: 200px;
     object-fit: cover;
 }
 
+.card-body {
+    padding: 15px;
+    background-color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.card-text {
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+/* Modal Styles */
+.modal-header {
+    background-color: #FFAA33;
+    color: white;
+}
+
+.modal-title {
+    font-weight: bold;
+}
+
+.modal-footer .btn-primary {
+    background-color: #FFAA33;
+    border: none;
+}
+
+.modal-footer .btn-primary:hover {
+    background-color: #e68a00;
+}
+
+/* Button Styles */
+.btn-primary {
+    background-color: #FFAA33;
+    border-color: #FFAA33;
+}
+
+.btn-primary:hover {
+    background-color: #e68a00;
+    border-color: #e68a00;
+}
+
+.btn-danger {
+    background-color: #d9534f;
+    border-color: #d43f3a;
+}
+
+.btn-danger:hover {
+    background-color: #c9302c;
+    border-color: #ac2925;
+}
+
+/* File Upload Styling */
+#editImages {
+    margin-top: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    header .nav-link {
+        font-size: 16px;
+    }
+    #searchBar {
+        font-size: 14px;
+    }
+}

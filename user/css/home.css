@@ -172,20 +172,16 @@ body {
     margin-bottom: 10px;
 }
 
+/* Only display the active section */
 #live-chat-section.active,
 #chat-history-section.active {
-    display: block; /* Only display the active section */
+    display: block;
 }
 
-/* Key CSS from home.css */
-#live-chat-section.active,
-#chat-history-section.active {
-    display: block; /* Ensure the active section is displayed */
-}
-
+/* Hide inactive sections */
 #live-chat-section:not(.active),
 #chat-history-section:not(.active) {
-    display: none; /* Ensure the inactive section is hidden */
+    display: none;
 }
 
 
@@ -216,11 +212,3 @@ body {
         max-height: 300px; 
     }
 }
-
-
-
-
-
-
-
-

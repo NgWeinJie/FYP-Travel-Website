@@ -33,62 +33,69 @@ document.addEventListener('DOMContentLoaded', () => {
     function attachEventListeners(sessionId) {
         const liveChatBtn = document.getElementById('live-chat-btn');
         const chatHistoryBtn = document.getElementById('chat-history-btn');
-        const liveChatSection = document.getElementById('live-chat-section');
-        const chatHistorySection = document.getElementById('chat-history-section');
 
         liveChatBtn.addEventListener('click', () => {
-            console.log("Live Chat button clicked.");
+            console.log("Live chat button clicked.");
             switchToLiveChat(sessionId);
         });
 
         chatHistoryBtn.addEventListener('click', async () => {
-            console.log("Chat History button clicked.");
+            console.log("Chat history button clicked.");
             await switchToChatHistory(sessionId);
         });
 
         document.getElementById('send-chat-btn').addEventListener('click', async () => {
             const message = document.getElementById('chat-input').value;
             if (message.trim() !== '') {
+                console.log("Send message button clicked.");
                 await createOrUpdateChatSession(sessionId);
                 await sendMessage(sessionId, message);
             }
         });
 
         document.getElementById('end-chat-btn').addEventListener('click', async () => {
+            console.log("End chat button clicked.");
             await endChatSession(sessionId);
         });
     }
 
+    // Function to switch to Live Chat
     function switchToLiveChat(sessionId) {
-        stopLiveChatListener(); 
-        clearMessages('chat-messages'); 
+        console.log("Switching to live chat for session ID:", sessionId);
+        stopLiveChatListener();
+        clearMessages('chat-messages');
 
-        const liveChatSection = document.getElementById('live-chat-section');
-        const chatHistorySection = document.getElementById('chat-history-section');
-        liveChatSection.classList.add('active');
-        chatHistorySection.classList.remove('active');
-        liveChatSection.style.display = 'block';
-        chatHistorySection.style.display = 'none';
-
-        startLiveChatListener(sessionId); 
+        // Toggle visibility
+        document.getElementById('live-chat-section').classList.add('active');
+        document.getElementById('chat-history-section').classList.remove('active');
+        
+        // Start listening to live chat messages
+        startLiveChatListener(sessionId);
     }
 
+    // Function to switch to Chat History
     async function switchToChatHistory(sessionId) {
-        stopLiveChatListener(); 
-        clearMessages('chat-history'); 
+        console.log("Switching to chat history for session ID:", sessionId);
+        stopLiveChatListener();
+        clearMessages('chat-history');
 
-        const liveChatSection = document.getElementById('live-chat-section');
-        const chatHistorySection = document.getElementById('chat-history-section');
-        liveChatSection.classList.remove('active');
-        chatHistorySection.classList.add('active');
-        liveChatSection.style.display = 'none';
-        chatHistorySection.style.display = 'block';
+        // Toggle visibility
+        document.getElementById('live-chat-section').classList.remove('active');
+        document.getElementById('chat-history-section').classList.add('active');
 
-        await loadChatHistory(sessionId); 
+        // Load chat history
+        await loadChatHistory(sessionId);
     }
 
+    
     function startLiveChatListener(sessionId) {
+        console.log("Starting live chat listener for session ID:", sessionId);
         const chatMessages = document.getElementById('chat-messages');
+
+        if (!chatMessages) {
+            console.error("Chat messages container not found in DOM.");
+            return;
+        }
 
         liveChatListener = db.collection('messages')
             .where('sessionId', '==', sessionId)
@@ -105,37 +112,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function stopLiveChatListener() {
         if (liveChatListener) {
-            liveChatListener(); 
+            liveChatListener(); // Detach listener
+            liveChatListener = null;
         }
     }
 
+    // Load the chat history messages
     async function loadChatHistory(sessionId) {
         const chatHistoryContainer = document.getElementById('chat-history');
 
+        if (!chatHistoryContainer) {
+            console.error("Chat history container not found in DOM.");
+            return;
+        }
+
         try {
             const snapshot = await db.collection('messages')
-                                     .where('sessionId', '==', sessionId)
-                                     .orderBy('timestamp', 'asc')
-                                     .get();
+                                    .where('sessionId', '==', sessionId)
+                                    .orderBy('timestamp', 'asc')
+                                    .get();
+
+            console.log("Chat history snapshot size:", snapshot.size);
 
             if (snapshot.empty) {
-                console.log("No chat history found for session:", sessionId);
                 chatHistoryContainer.textContent = 'No chat history found.';
+                console.log("No chat history found for session ID:", sessionId);
                 return;
             }
+
+            // Clear previous content
+            chatHistoryContainer.innerHTML = '';
 
             snapshot.forEach(doc => {
                 const msg = doc.data();
                 appendMessage(chatHistoryContainer, msg);
             });
 
+            chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
         } catch (error) {
-            console.error("Error loading chat history for session:", sessionId, "Error:", error);
             chatHistoryContainer.textContent = 'Unable to load chat history at the moment.';
+            console.error("Error loading chat history:", error);
         }
     }
 
     async function createOrUpdateChatSession(sessionId) {
+        console.log("Creating or updating chat session for session ID:", sessionId);
         const chatSessionRef = db.collection('chat_sessions').doc(sessionId);
         const chatSessionDoc = await chatSessionRef.get();
 
@@ -154,6 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function sendMessage(sessionId, message) {
+        console.log("Sending message for session ID:", sessionId);
         await db.collection('messages').add({
             text: message,
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
@@ -165,15 +187,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function endChatSession(sessionId) {
+        console.log("Ending chat session for session ID:", sessionId);
         await db.collection('chat_sessions').doc(sessionId).update({
             status: 'ended',
             endedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         document.getElementById('chat-box').classList.add('d-none');
-        stopLiveChatListener(); 
+        stopLiveChatListener();
     }
 
     function updateQueueLength(sessionId) {
+        console.log("Updating queue length for session ID:", sessionId);
         const queueInfoElement = document.getElementById('queue-info');
 
         db.collection('chat_sessions')
@@ -195,16 +219,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
+    // Append a message to the chat container
     function appendMessage(container, msg) {
         const msgElement = document.createElement('div');
         msgElement.classList.add('chat-message');
-        msgElement.textContent = msg.sender === 'user' 
-            ? `You: ${msg.text}` 
-            : `Admin: ${msg.text}`;
+        msgElement.textContent = msg.sender === 'user' ? `You: ${msg.text}` : `Admin: ${msg.text}`;
         container.appendChild(msgElement);
-        container.scrollTop = container.scrollHeight;
     }
 
+    // Clear messages from the container
     function clearMessages(containerId) {
         const container = document.getElementById(containerId);
         if (container) {
@@ -217,13 +240,13 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTimeout(inactivityTimeout);
         inactivityTimeout = setTimeout(() => {
             document.getElementById('end-chat-btn').click();
-        }, 600000);
+        }, 600000); // 10 minutes of inactivity
     }
 
     document.addEventListener('mousemove', resetInactivityTimeout);
     document.addEventListener('keypress', resetInactivityTimeout);
     resetInactivityTimeout();
-    
+
     // Function to create the media element
     function createMediaElement(images) {
         const fallbackIndex = 1;

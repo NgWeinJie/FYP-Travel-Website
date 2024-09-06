@@ -1,0 +1,16 @@
+/* Styling for the analytics dashboard */
+body {
+    font-family: Arial, sans-serif;
+}
+
+h2 {
+    color: #FFAA33;
+    font-weight: bold;
+}
+
+
+/* Chart container styling */
+canvas {
+    margin-top: 20px;
+    max-width: 100%;
+}
