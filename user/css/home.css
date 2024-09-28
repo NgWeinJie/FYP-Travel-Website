@@ -172,17 +172,20 @@ body {
     margin-bottom: 10px;
 }
 
-/* Only display the active section */
-#live-chat-section.active,
-#chat-history-section.active {
-    display: block;
+#live-chat-section,
+#chat-history-section {
+    display: none; /* Hide both sections by default */
 }
 
-/* Hide inactive sections */
-#live-chat-section:not(.active),
-#chat-history-section:not(.active) {
-    display: none;
+#live-chat-section.active,
+#chat-history-section.active {
+    display: block; /* Show only the active section */
 }
+
+.d-none {
+    display: none !important; /* Completely hide elements with d-none */
+}
+
 
 
 /* Promotion Slide */
