@@ -38,28 +38,53 @@
 
     <div class="container mt-5">
         <h2>Ticket Sales Analytics</h2>
-    
+
+        <!-- Date Filters -->
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label for="startDate">Start Date</label>
+                <input type="date" id="startDate" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label for="endDate">End Date</label>
+                <input type="date" id="endDate" class="form-control">
+            </div>
+            <div class="col-md-3 align-self-end">
+                <button id="filterDates" class="btn btn-primary">Filter</button>
+            </div>
+        </div>
+
+        <!-- Add filter button -->
+        <div class="mb-3">
+            <button id="toggleAttractions" class="btn btn-primary">Show All Attractions</button>
+            <button id="exportCombinedCSV" class="btn btn-secondary">Export Combined Data as CSV</button>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="spinner-border" role="status" style="display: none;">
+            <span class="sr-only">Loading...</span>
+        </div>
+
         <!-- Chart Section for Ticket Sales -->
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-6 canvas-container">
                 <canvas id="salesChart"></canvas> <!-- Ticket Sales Chart -->
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6 canvas-container">
                 <canvas id="attractionChart"></canvas> <!-- Popular Attractions Chart -->
             </div>
         </div>
-    
+
         <!-- Add new sections for Daily and Monthly sales -->
         <div class="row mt-5">
-            <div class="col-md-6">
+            <div class="col-md-6 canvas-container">
                 <canvas id="dailySalesChart"></canvas> <!-- Daily Sales Chart -->
             </div>
-            <div class="col-md-6">
+            <div class="col-md-6 canvas-container">
                 <canvas id="monthlySalesChart"></canvas> <!-- Monthly Sales Chart -->
             </div>
         </div>
     </div>
-    
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-app.js"></script>

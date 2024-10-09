@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sessionId = new Date().getTime().toString();
             console.log("Guest user session ID:", sessionId);
         }
+        console.log("User sessionId: ", sessionId);
         attachEventListeners(sessionId);
     });
 
@@ -46,16 +47,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('send-chat-btn').addEventListener('click', async () => {
             const message = document.getElementById('chat-input').value;
-            if (message.trim() !== '') {
+            const imageFile = document.getElementById('chat-image-input').files[0]; // Get the selected image file
+            
+            if (message.trim() !== '' || imageFile) {
                 console.log("Send message button clicked.");
                 await createOrUpdateChatSession(sessionId);
-                await sendMessage(sessionId, message);
+        
+                if (imageFile) {
+                    // If there is an image file, upload it
+                    const imageUrl = await uploadImage(sessionId, imageFile);
+                    await sendMessage(sessionId, message, imageUrl);
+                } else {
+                    await sendMessage(sessionId, message);
+                }
             }
         });
+
+        async function uploadImage(sessionId, imageFile) {
+            const storageRef = firebase.storage().ref();
+            const fileRef = storageRef.child(`chat_images/${sessionId}/${imageFile.name}`);
+            
+            try {
+                // Upload the file to Firebase Storage
+                const snapshot = await fileRef.put(imageFile);
+                // Get the URL of the uploaded file
+                const imageUrl = await snapshot.ref.getDownloadURL();
+                console.log('Uploaded image URL:', imageUrl);
+                return imageUrl;
+            } catch (error) {
+                console.error('Error uploading image:', error);
+            }
+        }
+        
 
         document.getElementById('end-chat-btn').addEventListener('click', async () => {
             console.log("End chat button clicked.");
             await endChatSession(sessionId);
+        });
+
+        document.getElementById('attach-image-btn').addEventListener('click', () => {
+            document.getElementById('chat-image-input').click();  // Trigger file input click
         });
     }
 
@@ -63,9 +94,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function switchToLiveChat(sessionId) {
         console.log("Switching to live chat for session ID:", sessionId);
+        console.log("User sessionId: ", sessionId);
     
         stopLiveChatListener(); // Stop any existing listener
         clearMessages('chat-messages'); // Clear old messages
+    
+        // Hide chat history and show live chat
+        document.getElementById('chat-history-section').classList.add('d-none');
+        document.getElementById('chat-history-section').classList.remove('active');
+        document.getElementById('live-chat-section').classList.remove('d-none');
+        document.getElementById('live-chat-section').classList.add('active');
     
         // Check the session status
         db.collection('chat_sessions').doc(sessionId).get().then((doc) => {
@@ -74,93 +112,98 @@ document.addEventListener('DOMContentLoaded', () => {
     
                 if (sessionData.status === 'ended') {
                     console.log("Previous chat session is ended. Creating a new chat session.");
-                    // Prompt to start a new session
-                    createNewChatSession(sessionId);
-                } else {
-                    // Continue with active chat session
-                    document.getElementById('live-chat-section').classList.remove('d-none');
-                    document.getElementById('live-chat-section').classList.add('active');
-                    
-                    document.getElementById('chat-history-section').classList.add('d-none');
-                    document.getElementById('chat-history-section').classList.remove('active');
     
-                    startLiveChatListener(sessionId);
+                    // Create a new chat session with a new sessionId
+                    const newSessionId = new Date().getTime().toString();  // Generate a new session ID
+                    createNewChatSession(newSessionId);  // Create a new session
+                    sessionId = newSessionId;  // Update sessionId to the new one
+                } else {
+                    startLiveChatListener(sessionId);  // Continue with the active session
                 }
             } else {
-                // No session exists, create a new one
-                createNewChatSession(sessionId);
+                createNewChatSession(sessionId);  // If no session exists, create a new one
             }
         }).catch((error) => {
             console.error("Error fetching chat session:", error);
         });
     }
     
-    async function createNewChatSession(sessionId) {
+    
+    let activeSessionId = null;  // Store the active session ID globally
+
+    async function createNewChatSession(userId) {
+        const uniqueSessionId = new Date().getTime().toString();  // Generate a unique session ID
+        const sessionId = `${userId}_${uniqueSessionId}`;  // Concatenate user ID and session ID
+    
         console.log("Creating a new chat session for session ID:", sessionId);
-        const chatSessionRef = db.collection('chat_sessions').doc(sessionId);
-        
-        await chatSessionRef.set({
+    
+        const sessionStartTime = firebase.firestore.FieldValue.serverTimestamp();
+    
+        // Create a new chat session in Firestore
+        await db.collection('chat_sessions').doc(sessionId).set({
             sessionId: sessionId,
+            userId: userId,
             status: 'active',
-            startedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
+            startedAt: sessionStartTime,
+            lastMessageAt: sessionStartTime
         });
     
-        document.getElementById('live-chat-section').classList.remove('d-none');
-        document.getElementById('live-chat-section').classList.add('active');
-        
-        startLiveChatListener(sessionId);
+        activeSessionId = sessionId;  // Store the active session ID globally
+        return sessionId;  // Return the session ID
     }
     
     
+
+    
     async function switchToChatHistory(sessionId) {
         console.log("Switching to chat history for session ID:", sessionId);
-        
-        stopLiveChatListener();
+    
+        stopLiveChatListener(); // Stop live chat listener
         clearMessages('chat-history'); // Clear chat history messages
         
-        // Ensure live chat section is hidden and chat history is shown
+        // Hide live chat and show chat history
+        document.getElementById('live-chat-section').classList.add('d-none');
+        document.getElementById('live-chat-section').classList.remove('active');
         document.getElementById('chat-history-section').classList.remove('d-none');
         document.getElementById('chat-history-section').classList.add('active');
         
-        document.getElementById('live-chat-section').classList.add('d-none');
-        document.getElementById('live-chat-section').classList.remove('active');
-    
         // Load chat history
         await loadChatHistory(sessionId);
     }
     
     
-    
     function startLiveChatListener(sessionId) {
         console.log("Starting live chat listener for session ID:", sessionId);
-        const chatMessages = document.getElementById('chat-messages');
-    
-        if (!chatMessages) {
-            console.error("Chat messages container not found in DOM.");
-            return;
-        }
     
         liveChatListener = db.collection('messages')
             .where('sessionId', '==', sessionId)
-            .orderBy('timestamp')
+            .orderBy('timestamp')  // Ensure ordering by timestamp
             .onSnapshot(snapshot => {
                 snapshot.docChanges().forEach(change => {
                     if (change.type === 'added') {
                         const msg = change.doc.data();
-                        appendMessage(chatMessages, msg);
+                        console.log("New message received:", msg);
+                        appendMessage(document.getElementById('chat-messages'), msg);  // Display the message
                     }
                 });
+    
+                // Auto-scroll to the latest message
+                document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+            }, error => {
+                console.error("Error in live chat listener: ", error);
             });
     }
     
+    
+
 
     function stopLiveChatListener() {
         if (liveChatListener) {
-            liveChatListener(); // Detach listener
+            liveChatListener();
             liveChatListener = null;
         }
     }
+    
 
     // Load the chat history messages
     async function loadChatHistory(sessionId) {
@@ -200,46 +243,108 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
 
-    async function createOrUpdateChatSession(sessionId) {
-        console.log("Creating or updating chat session for session ID:", sessionId);
-        const chatSessionRef = db.collection('chat_sessions').doc(sessionId);
-        const chatSessionDoc = await chatSessionRef.get();
-
-        if (!chatSessionDoc.exists) {
-            await chatSessionRef.set({
-                sessionId: sessionId,
-                status: 'active',
+    async function createOrUpdateChatSession(userId) {
+        // Check if an active session already exists for the user
+        const chatSessions = await db.collection('chat_sessions')
+            .where('status', '==', 'active')
+            .where('userId', '==', userId)
+            .limit(1)  // Only get the first matching session
+            .get();
+    
+        if (!chatSessions.empty) {
+            // If an active session exists, use it
+            activeSessionId = chatSessions.docs[0].id;
+            console.log("Reusing existing session ID:", activeSessionId);
+    
+            // Update the timestamp for the last message
+            await db.collection('chat_sessions').doc(activeSessionId).update({
                 lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
             });
         } else {
-            await chatSessionRef.update({
-                status: 'active',
-                lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            // If no active session exists, create a new one
+            activeSessionId = await createNewChatSession(userId);
         }
+    
+        return activeSessionId;  // Return the session ID
     }
 
-    async function sendMessage(sessionId, message) {
+    async function sendMessage(userId, message, imageUrl = null) {
+        const sessionId = await createOrUpdateChatSession(userId);
+        
         console.log("Sending message for session ID:", sessionId);
-        await db.collection('messages').add({
+        
+        const messageData = {
             text: message,
+            imageUrl: imageUrl,  // Save image URL if present
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             sender: 'user',
-            sessionId: sessionId
-        });
-        document.getElementById('chat-input').value = '';
-        updateQueueLength(sessionId);
-    }
-
-    async function endChatSession(sessionId) {
-        console.log("Ending chat session for session ID:", sessionId);
+            sessionId: sessionId,
+            status: 'active'
+        };
+        
+        // Optimistically append message to the UI
+        appendMessage(document.getElementById('chat-messages'), messageData);
+    
+        // Send the message to Firestore
+        await db.collection('messages').add(messageData);
+        
+        // Update the session's last message timestamp
         await db.collection('chat_sessions').doc(sessionId).update({
+            lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    
+        // Clear the input fields
+        document.getElementById('chat-input').value = '';
+        document.getElementById('chat-image-input').value = '';  // Clear the file input
+    }
+    
+
+    async function endChatSession() {
+        if (!activeSessionId) {
+            console.error('Invalid session ID:', activeSessionId);
+            return;
+        }
+    
+        console.log("Ending chat session for session ID:", activeSessionId);
+    
+        const chatSessionRef = db.collection('chat_sessions').doc(activeSessionId);
+    
+        // Check if the session document exists
+        const chatSessionDoc = await chatSessionRef.get();
+    
+        if (!chatSessionDoc.exists) {
+            console.error(`No document found for session ID: ${activeSessionId}`);
+            return;  // Exit if the session document doesn't exist
+        }
+    
+        const batch = db.batch();  // Create a batch for atomic writes
+    
+        // Update the chat session status to "ended"
+        batch.update(chatSessionRef, {
             status: 'ended',
             endedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        document.getElementById('chat-box').classList.add('d-none');
+    
+        // Get all active messages in this session and mark them as ended
+        const messagesSnapshot = await db.collection('messages')
+            .where('sessionId', '==', activeSessionId)
+            .where('status', '==', 'active')
+            .get();
+    
+        messagesSnapshot.forEach(doc => {
+            const messageRef = db.collection('messages').doc(doc.id);
+            batch.update(messageRef, { status: 'ended' });
+        });
+    
+        // Commit the batch to Firestore
+        await batch.commit();
+    
+        // Stop listening to live chat
         stopLiveChatListener();
+        document.getElementById('chat-box').classList.add('d-none');
     }
+    
+    
 
     function updateQueueLength(sessionId) {
         console.log("Updating queue length for session ID:", sessionId);
@@ -268,9 +373,24 @@ document.addEventListener('DOMContentLoaded', () => {
     function appendMessage(container, msg) {
         const msgElement = document.createElement('div');
         msgElement.classList.add('chat-message');
-        msgElement.dataset.timestamp = msg.timestamp;  // Track timestamp as a data attribute
-        msgElement.textContent = msg.sender === 'user' ? `You: ${msg.text}` : `Admin: ${msg.text}`;
+    
+        // Handle image messages
+        if (msg.imageUrl) {
+            const imgElement = document.createElement('img');
+            imgElement.src = msg.imageUrl;
+            imgElement.alt = 'Uploaded Image';
+            imgElement.style.maxWidth = '200px';
+            msgElement.appendChild(imgElement);
+        }
+    
+        // Display the message text
+        const textElement = document.createElement('p');
+        const senderPrefix = msg.sender === 'user' ? 'You: ' : 'Admin: ';
+        textElement.textContent = senderPrefix + msg.text;
+        msgElement.appendChild(textElement);
+    
         container.appendChild(msgElement);
+        container.scrollTop = container.scrollHeight; // Auto-scroll to the latest message
     }
     
     
@@ -851,47 +971,63 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('chat-box').classList.toggle('d-none');
     });
 
-    // Fetch and display the promotion slide
-    async function loadPromotionSlide() {
-        try {
-            const promotionsRef = db.collection('promotions');
-            const promotionSnapshot = await promotionsRef.get(); // Fetch all promotion slides
+// Fetch and display the promotion slide
+async function loadPromotionSlide() {
+    try {
+        const promotionsRef = db.collection('promotions');
+        const promotionSnapshot = await promotionsRef.get(); // Fetch all promotion slides
 
-            if (!promotionSnapshot.empty) {
-                let slideContent = '';
-                let isActive = true;
+        if (!promotionSnapshot.empty) {
+            let slideContent = '';
+            let isActive = true;
+            let validSlidesCount = 0;
 
-                promotionSnapshot.forEach((doc) => {
-                    const promotionData = doc.data();
-                    const slideImageUrl = promotionData.slideImageUrl;
+            const currentTime = new Date(); // Get current time
 
+            promotionSnapshot.forEach((doc) => {
+                const promotionData = doc.data();
+                const slideImageUrl = promotionData.slideImageUrl;
+                const endDateTime = promotionData.endDateTime ? new Date(promotionData.endDateTime.toDate()) : null;
+
+                // Check if endDateTime is not present or has not passed
+                if (!endDateTime || endDateTime > currentTime) {
                     slideContent += `
                         <div class="carousel-item ${isActive ? 'active' : ''}">
                             <img src="${slideImageUrl}" class="d-block w-100" alt="Promotion Slide">
                         </div>
                     `;
                     isActive = false; // Only the first slide should be active
-                });
+                    validSlidesCount++; // Count valid slides
+                }
+            });
 
+            if (validSlidesCount > 0) {
                 // Insert the slides into the carousel
                 const carouselItemsContainer = document.getElementById('carouselItems');
                 carouselItemsContainer.innerHTML = slideContent;
 
-                // Enable auto-scroll if more than one slide
                 const promotionCarousel = document.getElementById('promotionCarousel');
-                if (promotionSnapshot.size > 1) {
+                if (validSlidesCount > 1) {
+                    // Enable auto-scroll if more than one slide
                     $(promotionCarousel).carousel({
                         interval: 5000 // 5 seconds interval
                     });
                 }
             } else {
-                console.log("No promotion slides found.");
+                // Hide the carousel if no valid slides
+                document.getElementById('promotion-slide').style.display = 'none';
             }
-        } catch (error) {
-            console.error("Error loading promotion slide:", error);
+        } else {
+            // Hide the carousel if there are no slides at all
+            document.getElementById('promotion-slide').style.display = 'none';
         }
+    } catch (error) {
+        console.error("Error loading promotion slide:", error);
+        document.getElementById('promotion-slide').style.display = 'none'; // Hide in case of error
     }
+}
 
-    // Call the function to load the promotion slide
-    loadPromotionSlide();
+// Call the function to load the promotion slide
+loadPromotionSlide();
+
 });
