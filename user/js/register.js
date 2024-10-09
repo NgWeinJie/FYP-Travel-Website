@@ -15,6 +15,16 @@ firebase.initializeApp(firebaseConfig);
 document.getElementById('registerForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
+    // Validate the terms checkbox
+    const termsCheckbox = document.getElementById('termsCheckbox');
+    const termsError = document.getElementById('termsError');
+    if (!termsCheckbox.checked) {
+        termsError.classList.remove('d-none');
+        return;
+    } else {
+        termsError.classList.add('d-none');
+    }
+
     if (validation()) {
         const firstName = document.getElementById('firstName').value;
         const lastName = document.getElementById('lastName').value;
@@ -47,6 +57,7 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
             });
     }
 });
+
 
 function validation() {
     const firstName = document.getElementById('firstName').value.trim();

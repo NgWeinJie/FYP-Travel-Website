@@ -1,0 +1,18 @@
+{
+  "name": "fyp-project",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./user/js/server.js",
+  "scripts": {
+    "start": "node ./user/js/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "node-fetch": "^3.3.2"
+  }
+}

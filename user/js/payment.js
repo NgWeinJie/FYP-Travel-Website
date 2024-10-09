@@ -287,10 +287,9 @@ async function generateTicketsPDF(user, items) {
         const doc = new jsPDF(); // Create a new jsPDF instance
 
         // Function to center text
-        const centerText = (text, y, fontSize, fontStyle) => {
-            const width = doc.internal.pageSize.width;
+        const centerText = (text, y, fontSize) => {
             doc.setFontSize(fontSize);
-            doc.setFont(fontStyle);
+            const width = doc.internal.pageSize.width;
             const textWidth = doc.getTextWidth(text);
             doc.text(text, (width - textWidth) / 2, y);
         };
@@ -312,10 +311,10 @@ async function generateTicketsPDF(user, items) {
             }
 
             doc.setTextColor("#FFAA33"); // Set text color
-            centerText('FlyOne Travel Explorer', 20, 24, 'bold'); // Larger and bold text
+            centerText('FlyOne Travel Explorer', 20, 24); // Larger and bold text
 
             doc.setTextColor("#000000"); // Reset text color to black
-            centerText('Thank you for your purchase!', 30, 16, 'normal'); // Regular text
+            centerText('Thank you for your purchase!', 30, 16); // Regular text
 
             // Add attraction details
             centerText(`Attraction: ${item.attractionName}`, 50, 16, 'normal');
@@ -327,14 +326,43 @@ async function generateTicketsPDF(user, items) {
             centerQRCode(qrCodeURL, 90); // Center QR code at y = 90
         }
 
+        // Return the PDF as a data URI before saving it
+        const pdfData = doc.output('datauristring'); // Get PDF data as data URI
+
         // Save the PDF after all pages are added
         const fileName = `Tickets_${user.uid}.pdf`;
-        doc.save(fileName);
+        doc.save(fileName); // Optional, if you want to save the PDF locally as well
+
+        return pdfData; // Return the PDF data URI
 
     } catch (error) {
         console.error('Error generating ticket PDF:', error);
+        throw error; // Optionally rethrow the error for further handling
     }
 }
+
+
+// Function to send order summary email
+async function sendOrderSummaryEmail(email, totalAmount, pdfData, orderItems) {
+    try {
+        const response = await fetch('http://localhost:3000/send-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, totalAmount, pdfData, orderItems }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error sending email: ${response.statusText}`);
+        }
+
+        console.log('Order summary email sent successfully.');
+    } catch (error) {
+        console.error('Error sending order summary email:', error);
+    }
+}
+
 
 
 
@@ -410,7 +438,10 @@ async function processPayment() {
         sessionStorage.removeItem('appliedPromoCode');
 
         // Generate a single PDF with all tickets on separate pages
-        await generateTicketsPDF(user, itemsForPDF, orderId);
+        const pdfData = await generateTicketsPDF(user, itemsForPDF);
+
+        const base64PDF = pdfData.split(',')[1]; // Get only the base64 part
+        await sendOrderSummaryEmail(user.email, finalTotal, base64PDF, orderData.items); // Send the base64 PDF
 
         alert('Payment and Ticket Generation Successful!');
         window.location.href = 'home.html';

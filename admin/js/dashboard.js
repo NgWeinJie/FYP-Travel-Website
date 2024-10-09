@@ -128,38 +128,42 @@ document.getElementById('editAttractionForm').addEventListener('submit', async (
         images: [] // Initialize the images array
     };
 
-    if (selectedFilesOrder.length !== 3) {
+    // If no new images are selected, keep the existing ones
+    if (selectedFilesOrder.length === 0) {
+        const currentImages = document.querySelectorAll('#currentImages img');
+        currentImages.forEach(img => {
+            updatedData.images.push(img.src);  // Use the existing image URLs
+        });
+    } else if (selectedFilesOrder.length !== 3) {
         alert("Please upload exactly 3 images.");
         return;
+    } else {
+        // Proceed with uploading new images if selected
+        try {
+            for (let i = 0; i < selectedFilesOrder.length; i++) {
+                const file = selectedFilesOrder[i];
+                const storageRef = storage.ref().child(`attractions/${id}/image_${i}_${Date.now()}`);
+                const snapshot = await storageRef.put(file);
+                const url = await storageRef.getDownloadURL();
+                updatedData.images[i] = url;
+            }
+        } catch (error) {
+            console.error("Error saving images:", error);
+            alert("An error occurred while uploading the images.");
+            return;
+        }
     }
 
     try {
-        // Create an array of promises for each upload to ensure sequential uploads
-        for (let i = 0; i < selectedFilesOrder.length; i++) {
-            const file = selectedFilesOrder[i];
-            console.log(`Uploading file for image ${i}:`, file);
-
-            // We use async/await in a loop to ensure order is preserved
-            const storageRef = storage.ref().child(`attractions/${id}/image_${i}_${Date.now()}`);
-            const snapshot = await storageRef.put(file);
-            const url = await storageRef.getDownloadURL();
-            console.log(`New URL for image ${i}: ${url}`);
-            updatedData.images[i] = url; // Add the new image URL to the images array in the correct order
-        }
-
-        // Log the final images array before updating Firestore
-        console.log('Final images array to update:', updatedData.images);
-
-        // Update the document in Firestore with images in the correct order
         await db.collection('attractions').doc(id).update(updatedData);
-        console.log(`Document ${id} updated successfully`);
         $('#editModal').modal('hide');
-        window.location.reload(); // Force refresh to see updated images
+        window.location.reload();
     } catch (error) {
-        console.error("Error saving edited attraction:", error);
-        alert("An error occurred while saving the attraction. Please try again.");
+        console.error("Error updating attraction:", error);
+        alert("An error occurred while saving the attraction.");
     }
 });
+
 
 // Delete attraction
 function deleteAttraction(id) {

@@ -59,6 +59,7 @@ function loadUserSessions() {
 // Function to load chat messages for a session in real-time
 function loadChatMessages(sessionId) {
     console.log("Loading chat messages for session: ", sessionId); // Debugging log
+    console.log("Admin sessionId: ", currentSessionId);
     const chatMessages = document.getElementById('chat-messages');
     chatMessages.innerHTML = '';
 
@@ -92,17 +93,23 @@ function loadChatMessages(sessionId) {
 document.getElementById('send-chat-btn').addEventListener('click', async () => {
     const message = document.getElementById('chat-input').value;
     if (message.trim() !== '' && currentSessionId) {
-        console.log("Sending message: ", message); // Debugging log
+        console.log("Sending message: ", message);
+        console.log("Admin sessionId: ", currentSessionId);
+
+        const now = new Date();
         await db.collection('messages').add({
             text: message,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            timestamp: now,
             sender: 'admin',
-            sessionId: currentSessionId
+            sessionId: currentSessionId,
+            status: 'active'  // Ensure status is set to 'active'
         });
+
         await db.collection('chat_sessions').doc(currentSessionId).update({
-            lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
+            lastMessageAt: firebase.firestore.FieldValue.serverTimestamp() // Ensure lastMessageAt is also set
         });
-        document.getElementById('chat-input').value = '';
+
+        document.getElementById('chat-input').value = ''; // Clear input field after sending
     }
 });
 

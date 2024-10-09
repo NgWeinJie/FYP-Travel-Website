@@ -9,8 +9,20 @@ h2 {
 }
 
 
-/* Chart container styling */
+/* Ensure consistent size for all chart canvases */
+.canvas-container {
+    display: flex;
+    justify-content: space-between;  /* Space charts evenly */
+}
+
 canvas {
-    margin-top: 20px;
-    max-width: 100%;
+    width: 100% !important;
+    height: 400px !important;
+    max-width: 600px;  /* Keep max-width consistent across all charts */
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;  /* Ensure even spacing between charts */
+    align-items: center;             /* Align charts vertically */
 }

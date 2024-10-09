@@ -209,6 +209,18 @@ body {
     max-height: 800px; 
 }
 
+#attach-image-btn {
+    border: none;
+    background-color: transparent;
+    font-size: 20px;
+    color: #007bff;
+}
+
+#attach-image-btn:hover {
+    color: #0056b3;
+}
+
+
 /* Ensure the slide remains responsive */
 @media (max-width: 768px) {
     #promotion-slide img {
