@@ -1,8 +1,11 @@
 import express from 'express';
 import fetch from 'node-fetch';
 import cors from 'cors';
+import dotenv from 'dotenv';
 
 const app = express();
+
+dotenv.config();
 
 // Enable CORS for all routes
 app.use(cors());
@@ -27,11 +30,11 @@ app.post('/send-email', async (req, res) => {
             <table class="table" style="width: 100%;">
                 <thead style="background-color: #FFAA33;">
                     <tr>
-                        <th>Attraction</th>
-                        <th>Ticket Type</th>
-                        <th>Quantity</th>
-                        <th>Price per Ticket</th>
-                        <th>Date of Visit</th>
+                        <th style="color: #FFFFFF;">Attraction</th>
+                        <th style="color: #FFFFFF;">Ticket Type</th>
+                        <th style="color: #FFFFFF;">Quantity</th>
+                        <th style="color: #FFFFFF;">Price per Ticket</th>
+                        <th style="color: #FFFFFF;">Date of Visit</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -51,7 +54,7 @@ app.post('/send-email', async (req, res) => {
         const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer MY API Key`,
+                'Authorization': `Bearer ${process.env.SENDGRID_API_KEY}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
