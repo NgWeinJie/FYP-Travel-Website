@@ -1,0 +1,26 @@
+body {
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+}
+
+h1 {
+    color: #FFAA33;
+}
+
+.card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: #FFAA33;
+    color: white;
+    font-weight: bold;
+}
+
+.navbar {
+    background-color: #FFAA33;
+}
+
+.nav-link {
+    font-weight: bold;
+}

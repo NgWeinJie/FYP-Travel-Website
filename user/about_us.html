@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Currency Conversion</title>
+    <title>About Us - FlyOne Travel Explorer</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/currency.css">
+    <link rel="stylesheet" href="css/about_us.css">
+    <link href="css/header.css" rel="stylesheet">
 </head>
 <body>
-    <!-- Top Header -->
+    <!-- Top Header with Logo and Search -->
     <div class="top-header bg-white text-ffaa33">
         <div class="container d-flex justify-content-between align-items-center py-2">
             <div class="logo">
                 <img src="../image/logo1.png" alt="Website Logo" class="logo-img">
             </div>
             <div class="search-bar input-group">
-                <input type="text" class="form-control" placeholder="Search...">
+                <input type="text" class="form-control" id="searchInput" placeholder="Search...">
                 <div class="input-group-append">
-                    <button class="btn btn-primary" type="button">
+                    <button class="btn btn-primary" type="button" id="searchButton">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
@@ -48,8 +48,8 @@
                             Destination
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item text-white" href="#">Kuala Lumpur</a>
-                            <a class="dropdown-item text-white" href="#">Penang</a>
+                            <a class="dropdown-item text-white" href="#" id="kuala-lumpur-link">Kuala Lumpur</a>
+                            <a class="dropdown-item text-white" href="#" id="penang-link">Penang</a>
                         </div>
                     </li>
                     <li class="nav-item">
@@ -78,46 +78,27 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <div class="container my-4">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow-sm border-light rounded">
-                    <div class="card-header text-white bg-ffaa33">
-                        <h4 class="mb-0">Currency Conversion</h4>
-                    </div>
-                    <div class="card-body bg-white">
-                        <form>
-                            <div class="form-group">
-                                <label for="amount">Amount</label>
-                                <input type="number" id="amount" class="form-control" placeholder="Enter amount" oninput="convertCurrency()">
-                            </div>
-                            <div class="form-group">
-                                <label for="fromCurrency">From Currency</label>
-                                <select id="fromCurrency" class="form-control" onchange="convertCurrency()">
-                                    <!-- Options will be populated dynamically -->
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="toCurrency">To Currency</label>
-                                <select id="toCurrency" class="form-control" onchange="convertCurrency()">
-                                    <!-- Options will be populated dynamically -->
-                                </select>
-                            </div>
-                        </form>
-                        <h4 class="mt-4">Converted Amount:</h4>
-                        <div id="result" class="alert alert-info">0.00</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- About Us Content -->
+    <div class="container about-section my-5">
+        <h2 class="text-center">About Us</h2>
+        <p class>FlyOne Travel Explorer is dedicated to transforming the way independent travelers explore Kuala Lumpur and Penang. Our platform is designed to address the unique needs of individuals who prefer self-planned trips, offering them a user-friendly and comprehensive resource for travel recommendations and ticketing solutions.</p>
+
+        <p>Unlike most travel websites that focus on package deals and broad travel advice, FlyOne Travel Explorer specializes in providing personalized travel guidance and ticket booking services. Whether you’re looking to explore iconic landmarks, discover hidden gems, or plan a unique itinerary, we aim to make your experience seamless and hassle-free.</p>
+
+        <p>Our platform supports independent travelers by offering:</p>
+        <ul>
+            <li>A personalized recommendation engine that curates attractions and experiences based on your preferences.</li>
+            <li>A simple and secure ticket purchasing system for Kuala Lumpur and Penang’s most popular attractions.</li>
+            <li>An interactive community feature where travelers can share their experiences, reviews, and travel tips.</li>
+        </ul>
+
+        <p>We also understand the complexities faced by international travelers. That’s why we’ve integrated a currency conversion calculator and a mock payment gateway, allowing you to seamlessly plan your trip without worrying about exchange rates or payment processes.</p>
+
+        <p>Through innovative features and a commitment to excellence, FlyOne Travel Explorer aims to be the go-to platform for anyone seeking unique and personalized travel experiences in Kuala Lumpur and Penang. By combining cutting-edge technology with deep local insights, we strive to enhance every aspect of your journey, from planning to ticketing and beyond.</p>
     </div>
 
-
-    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="js/currency.js"></script>
 </body>
 </html>

@@ -96,14 +96,30 @@ async function fetchUserOrders(userId) {
 async function fetchAttractions(attractionIds) {
     const attractionsDataMap = {};
     try {
-        const attractionDocs = await db.collection('attractions').where(firebase.firestore.FieldPath.documentId(), 'in', attractionIds).get();
-        attractionDocs.forEach(doc => {
-            attractionsDataMap[doc.id] = doc.data();
-        });
+        const batchSize = 10; // Firestore allows a maximum of 10 elements for 'in' query
+        for (let i = 0; i < attractionIds.length; i += batchSize) {
+            const batch = attractionIds.slice(i, i + batchSize); // Slice the array into batches of 10
+            const attractionDocs = await db.collection('attractions')
+                .where(firebase.firestore.FieldPath.documentId(), 'in', batch)
+                .get();
+
+            attractionDocs.forEach(doc => {
+                attractionsDataMap[doc.id] = doc.data();
+            });
+        }
     } catch (error) {
         console.error('Error fetching attractions:', error);
     }
     return attractionsDataMap;
+}
+
+// Helper function to compare only the date part of two dates
+function isSameDateWithoutTime(date1, date2) {
+    return (
+        date1.getFullYear() === date2.getFullYear() &&
+        date1.getMonth() === date2.getMonth() &&
+        date1.getDate() === date2.getDate()
+    );
 }
 
 // Function to display order history based on filter (upcoming or history)
@@ -120,7 +136,11 @@ function displayOrderHistory(orders, filter) {
     const filteredOrders = orders.filter(order => {
         return order.items.some(item => {
             const visitDate = new Date(item.visitDate);
-            return filter === 'upcoming' ? visitDate >= now : visitDate < now;
+            if (filter === 'upcoming') {
+                return visitDate > now || isSameDateWithoutTime(visitDate, now); // Include today's date as upcoming
+            } else {
+                return visitDate < now && !isSameDateWithoutTime(visitDate, now); // Exclude today's date from history
+            }
         });
     });
 

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Coins Reward Management</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/coins_reward.css">
+    <link rel="stylesheet" href="css/header.css">
+</head>
+<body>
+
+    <header class="navbar navbar-expand-lg navbar-light bg-ffaa33">
+        <div class="container justify-content-center">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="dashboard.html">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="new_attractions.html">Add New Attraction</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="chat.html">Admin Chat</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="promotion.html">Promotion</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="coins_reward.html">Coins Reward</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="analytics.html">Sales Analytics</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="login.html">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </header>
+
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Coins Reward Management</h1>
+
+        <!-- Voucher Form -->
+        <div class="card mb-4">
+            <div class="card-header">Add New Voucher</div>
+            <div class="card-body">
+                <form id="voucherForm">
+                    <div class="form-group">
+                        <label for="voucherName">Voucher Name</label>
+                        <input type="text" class="form-control" id="voucherName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="costOfCoins">Cost of Coins</label>
+                        <input type="number" class="form-control" id="costOfCoins" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="stocks">Stocks</label>
+                        <input type="number" class="form-control" id="stocks" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="stepsToUse">Steps to Use</label>
+                        <textarea class="form-control" id="stepsToUse" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="termsConditions">Terms & Conditions</label>
+                        <textarea class="form-control" id="termsConditions" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="voucherImage">Voucher Image</label>
+                        <input type="file" class="form-control-file" id="voucherImage" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Voucher</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Existing Vouchers -->
+        <div class="card">
+            <div class="card-header">Existing Vouchers</div>
+            <div class="card-body">
+                <div id="voucherList" class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Voucher Name</th>
+                                <th>Cost of Coins</th>
+                                <th>Stocks</th>
+                                <th>Steps to Use</th>
+                                <th>Terms & Conditions</th>
+                                <th>Voucher Image</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Vouchers will be dynamically added here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-storage.js"></script>
+<script src="js/coins_reward.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

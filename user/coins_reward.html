@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Currency Conversion</title>
+    <title>Coins Reward Redemption</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="css/coins_reward.css">
     <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/currency.css">
 </head>
 <body>
+
     <!-- Top Header -->
     <div class="top-header bg-white text-ffaa33">
         <div class="container d-flex justify-content-between align-items-center py-2">
@@ -78,46 +79,67 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <div class="container my-4">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow-sm border-light rounded">
-                    <div class="card-header text-white bg-ffaa33">
-                        <h4 class="mb-0">Currency Conversion</h4>
-                    </div>
-                    <div class="card-body bg-white">
-                        <form>
-                            <div class="form-group">
-                                <label for="amount">Amount</label>
-                                <input type="number" id="amount" class="form-control" placeholder="Enter amount" oninput="convertCurrency()">
-                            </div>
-                            <div class="form-group">
-                                <label for="fromCurrency">From Currency</label>
-                                <select id="fromCurrency" class="form-control" onchange="convertCurrency()">
-                                    <!-- Options will be populated dynamically -->
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="toCurrency">To Currency</label>
-                                <select id="toCurrency" class="form-control" onchange="convertCurrency()">
-                                    <!-- Options will be populated dynamically -->
-                                </select>
-                            </div>
-                        </form>
-                        <h4 class="mt-4">Converted Amount:</h4>
-                        <div id="result" class="alert alert-info">0.00</div>
-                    </div>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Redeem Your Coins</h1>
+
+        <h4 class="text-center mb-4">Your Balance: <span id="userCoins">Loading...</span> Coins</h4>
+    
+        <!-- Vouchers Display Section -->
+        <div id="voucherCards" class="row">
+            <!-- Voucher cards will be populated here -->
+        </div>
+    
+        <!-- Redemption History -->
+        <div class="card mt-4">
+            <div class="card-header">Redemption History</div>
+            <div class="card-body">
+                <div id="redemptionList" class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Voucher Code</th>
+                                <th>Voucher Name</th>
+                                <th>Redeem Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Redemption history will be dynamically added here -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal for Terms & Conditions -->
+    <div class="modal fade" id="termsModal" tabindex="-1" role="dialog" aria-labelledby="termsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="termsModalLabel">Terms & Conditions</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modalContent">
+                    <!-- Terms & Conditions content will be inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- Scripts -->
+    <div id="redeemMessage"></div>
+
+    
+
+    <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="js/coins_reward.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="js/currency.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

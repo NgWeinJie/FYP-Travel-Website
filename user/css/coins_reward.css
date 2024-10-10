@@ -1,0 +1,50 @@
+body {
+    background-color: #f8f9fa;
+    font-family: Arial, sans-serif;
+}
+
+h1 {
+    color: #FFAA33;
+}
+
+.card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-img-top {
+    object-fit: cover; 
+    height: 300px; 
+}
+
+.card-body {
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card-title {
+    margin-bottom: auto; 
+}
+
+.card-header {
+    background-color: #FFAA33;
+    color: #ffffff;
+}
+
+
+.navbar {
+    background-color: #FFAA33;
+}
+
+.nav-link {
+    font-weight: bold;
+}
+
+#redeemMessage {
+    font-weight: bold;
+    color: #FFAA33;
+}
