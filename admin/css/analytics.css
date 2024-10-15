@@ -9,20 +9,49 @@ h2 {
 }
 
 
-/* Ensure consistent size for all chart canvases */
-.canvas-container {
-    display: flex;
-    justify-content: space-between;  /* Space charts evenly */
-}
-
+/* Chart container styling */
 canvas {
-    width: 100% !important;
-    height: 400px !important;
-    max-width: 600px;  /* Keep max-width consistent across all charts */
+    margin-top: 20px;
+    max-width: 100%;
 }
 
-.row {
-    display: flex;
-    justify-content: space-between;  /* Ensure even spacing between charts */
-    align-items: center;             /* Align charts vertically */
+#attractionChart {
+    width: 100% !important;
+    height: 300px !important;  /* Fixed height */
+    max-height: 300px !important; /* Ensure it doesn't exceed this height */
+    display: block;
+    margin-bottom: 80px;  /* Add space after the chart */
+}
+
+/* analytics.css */
+.table th, .table td {
+    text-align: center; /* Center align text */
+}
+
+.table th {
+    background-color: #007bff; /* Bootstrap primary color */
+    color: white; /* White text for better contrast */
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f8f9fa; /* Light gray for odd rows */
+}
+
+.table-striped tbody tr:hover {
+    background-color: #e2e6ea; /* Light hover effect */
+}
+
+#dailySalesChart {
+    width: 100% !important;
+    height: 300px !important;  /* Fixed height */
+    max-height: 300px !important;
+    display: block;
+}
+
+
+#monthlySalesChart {
+    width: 100% !important;
+    height: 300px !important;  /* Fixed height */
+    max-height: 300px !important;
+    display: block;
 }

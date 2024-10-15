@@ -9,153 +9,87 @@ const firebaseConfig = {
     measurementId: "G-EB638XG363"
 };
 
-// Initialize Firebase
+// Firebase configuration (same as before)
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-let salesChartInstance = null;  // Track the sales chart instance
-let attractionChartInstance = null;  // Track the attraction chart instance
+let salesData, dailySales, monthlySales; // Declare globally
 
-// Fetch and process the sales data for analytics
 document.addEventListener('DOMContentLoaded', async () => {
-    const loadingSpinner = document.getElementById('loadingSpinner');
-    loadingSpinner.style.display = 'block';  // Show spinner during data fetch
     try {
         const attractionsData = await fetchAllAttractions();
-        const salesData = await fetchTicketSalesData(attractionsData);
+        salesData = await fetchTicketSalesData(attractionsData); // Store data in the global variable
 
-        let { salesByLocation, popularAttractions, dailySales, monthlySales } = processSalesData(salesData);
+        const { salesByLocation, allAttractions: processedAllAttractions, topAttractions: processedTopAttractions, dailySales: processedDailySales, monthlySales: processedMonthlySales } = processSalesData(salesData);
 
-        renderSalesChart(salesByLocation);
-        renderAttractionChart(popularAttractions.slice(0, 5));
+        // Assign globally so that the button and other parts can access them
+        window.allAttractions = processedAllAttractions;
+        window.topAttractions = processedTopAttractions;
+
+        dailySales = processedDailySales;
+        monthlySales = processedMonthlySales;
+
+        renderSalesTable(salesByLocation);
+        renderAttractionChart(window.topAttractions);
         renderDailySalesChart(dailySales);
         renderMonthlySalesChart(monthlySales);
 
-        const toggleButton = document.getElementById('toggleAttractions');
-        toggleButton.addEventListener('click', () => {
-            if (toggleButton.textContent === 'Show All Attractions') {
-                renderAttractionChart(popularAttractions);  
-                toggleButton.textContent = 'Show Top 5 Attractions';
-            } else {
-                renderAttractionChart(popularAttractions.slice(0, 5));  
-                toggleButton.textContent = 'Show All Attractions';
-            }
+        // Event Listener for Export Button
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            exportCartDataToCSV(salesData, salesByLocation, window.allAttractions, dailySales, monthlySales);
         });
 
-        // Filter by date range for all charts
-        document.getElementById('filterDates').addEventListener('click', async () => {
-            const startDate = new Date(document.getElementById('startDate').value);
-            const endDate = new Date(document.getElementById('endDate').value);
-
-            if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
-                const filteredSalesData = await fetchFilteredSalesData(startDate, endDate);
-                const { salesByLocation, popularAttractions, dailySales, monthlySales } = processSalesData(filteredSalesData);
-
-                renderSalesChart(salesByLocation);
-                renderAttractionChart(popularAttractions);
-                renderDailySalesChart(dailySales);
-                renderMonthlySalesChart(monthlySales);
-            }
-        });
-
-        // Export combined data as CSV
-        document.getElementById('exportCombinedCSV').addEventListener('click', function() {
-            exportCombinedCSV(salesByLocation, popularAttractions, dailySales, monthlySales, 'combined_report.csv');
-        });
-
+        // Add Event Listeners for the date filters
+        document.getElementById('dailySalesStartDate').addEventListener('change', filterCharts);
+        document.getElementById('dailySalesEndDate').addEventListener('change', filterCharts);
+        document.getElementById('monthlySalesStartMonth').addEventListener('change', filterCharts);
+        document.getElementById('monthlySalesEndMonth').addEventListener('change', filterCharts);
     } catch (error) {
         console.error('Error fetching sales data:', error);
-    } finally {
-        loadingSpinner.style.display = 'none';  // Hide spinner after fetching data
     }
 });
 
-// Function to export combined chart data to one CSV file
-function exportCombinedCSV(salesByLocation, popularAttractions, dailySales, monthlySales, filename) {
-    let csv = '';
-
-    // Section 1: Sales By Location
-    csv += 'Sales By Location\n';
-    csv += 'Location,Ticket Sales\n';
-    for (const [location, tickets] of Object.entries(salesByLocation)) {
-        csv += `${location},${tickets}\n`;
-    }
-    csv += '\n';  // Add empty line for separation
-
-    // Section 2: Popular Attractions
-    csv += 'Popular Attractions\n';
-    csv += 'Attraction,Tickets Sold\n';
-    popularAttractions.forEach(([attraction, tickets]) => {
-        csv += `${attraction},${tickets}\n`;
-    });
-    csv += '\n';  // Add empty line for separation
-
-    // Section 3: Daily Sales
-    csv += 'Daily Sales\n';
-    csv += 'Date,Revenue (MYR),Tickets Sold\n';
-    for (const [date, sales] of Object.entries(dailySales)) {
-        csv += `${date},${sales.revenue},${sales.ticketsSold}\n`;
-    }
-    csv += '\n';  // Add empty line for separation
-
-    // Section 4: Monthly Sales
-    csv += 'Monthly Sales\n';
-    csv += 'Month,Revenue (MYR)\n';
-    for (const [month, sales] of Object.entries(monthlySales)) {
-        csv += `${month},${sales.revenue}\n`;
-    }
-
-    // Create a Blob from the CSV string
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-
-    // Create a link to trigger the download
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);  // Clean up the link element
-}
-
-// Function to fetch all attractions data
+// Function to fetch all attractions data at once
 async function fetchAllAttractions() {
-    const snapshot = await db.collection('attractions').get();
-    const data = {};
-    snapshot.forEach(doc => data[doc.id] = doc.data());
-    return data;
+    const attractionsSnapshot = await db.collection('attractions').get();
+    const attractionsData = {};
+    attractionsSnapshot.forEach(doc => {
+        attractionsData[doc.id] = doc.data();
+    });
+    return attractionsData;
 }
 
 // Function to fetch ticket sales data from Firestore
 async function fetchTicketSalesData(attractionsData) {
-    const snapshot = await db.collection('orders').get();
-    const data = [];
-    snapshot.forEach(doc => {
-        const order = doc.data();
-        order.items.forEach(item => {
-            const attraction = attractionsData[item.attractionId];
-            if (attraction) {
-                item.state = attraction.state;
+    const ordersSnapshot = await db.collection('orders').get();
+    const salesData = [];
+
+    ordersSnapshot.forEach(doc => {
+        const orderData = doc.data();
+        const processedItems = [];
+
+        orderData.items.forEach(item => {
+            const attractionData = attractionsData[item.attractionId];
+            if (attractionData && attractionData.state) {
+                processedItems.push({
+                    ...item,
+                    state: attractionData.state
+                });
             }
         });
-        data.push(order);
+
+        salesData.push({
+            ...orderData,
+            items: processedItems
+        });
     });
-    return data;
+
+    console.log('Fetched sales data:', salesData); // Add this line
+    return salesData;
 }
 
-// Function to fetch filtered ticket sales data (by date range)
-async function fetchFilteredSalesData(startDate, endDate) {
-    const snapshot = await db.collection('orders')
-        .where('orderDate', '>=', startDate)
-        .where('orderDate', '<=', endDate)
-        .get();
 
-    const data = [];
-    snapshot.forEach(doc => data.push(doc.data()));
-    return data;
-}
-
-// Process sales data into formats for charts
+// Function to process sales data for charts
 function processSalesData(salesData) {
     const salesByLocation = { 'KL': 0, 'Penang': 0 };
     const attractionSales = {};
@@ -163,9 +97,9 @@ function processSalesData(salesData) {
     const monthlySales = {};
 
     salesData.forEach(order => {
-        const orderDate = order.orderDate.toDate();
-        const orderDay = orderDate.toLocaleDateString();
-        const orderMonth = `${orderDate.getFullYear()}-${orderDate.getMonth() + 1}`;
+        const orderDate = order.orderDate.toDate();  // Convert Firestore Timestamp to JS Date
+        const orderDay = orderDate.toLocaleDateString();  // Format: "MM/DD/YYYY"
+        const orderMonth = `${orderDate.getFullYear()}-${String(orderDate.getMonth() + 1).padStart(2, '0')}`;  // Format: "YYYY-MM" with zero-padding
 
         if (!dailySales[orderDay]) {
             dailySales[orderDay] = { revenue: 0, ticketsSold: 0 };
@@ -175,7 +109,10 @@ function processSalesData(salesData) {
         }
 
         dailySales[orderDay].revenue += order.totalAmount;
+        dailySales[orderDay].ticketsSold += order.items.reduce((sum, item) => sum + item.quantity, 0);
+
         monthlySales[orderMonth].revenue += order.totalAmount;
+        monthlySales[orderMonth].ticketsSold += order.items.reduce((sum, item) => sum + item.quantity, 0);
 
         order.items.forEach(item => {
             const { attractionName, quantity, state } = item;
@@ -191,21 +128,22 @@ function processSalesData(salesData) {
         });
     });
 
-    const popularAttractions = Object.entries(attractionSales).sort(([, a], [, b]) => b - a);
+    // Sort attractions by popularity
+    const allAttractions = Object.entries(attractionSales)
+        .sort(([, a], [, b]) => b - a);  // Sort by quantity sold
 
-    return { salesByLocation, popularAttractions, dailySales, monthlySales };
+    // Top 5 attractions
+    const topAttractions = allAttractions.slice(0, 5);
+
+    return { salesByLocation, allAttractions, topAttractions, dailySales, monthlySales };
 }
 
-// Function to render sales by location chart
+
+
+// Render ticket sales by location chart
 function renderSalesChart(salesByLocation) {
     const ctx = document.getElementById('salesChart').getContext('2d');
-
-    // Destroy existing chart instance if it exists
-    if (salesChartInstance) {
-        salesChartInstance.destroy();
-    }
-
-    salesChartInstance = new Chart(ctx, {
+    new Chart(ctx, {
         type: 'bar',
         data: {
             labels: ['KL', 'Penang'],
@@ -217,82 +155,290 @@ function renderSalesChart(salesByLocation) {
         },
         options: {
             responsive: true,
-            scales: { y: { beginAtZero: true } }
+            animation: {
+                duration: 1000, // Masa untuk animasi
+                easing: 'easeOutBounce' // Jenis easing untuk animasi
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
         }
     });
 }
 
-// Function to render daily sales chart
+let dailySalesChartInstance = null; // Declare a global variable to store the chart instance
+
 function renderDailySalesChart(dailySales) {
-    const sortedDates = Object.keys(dailySales).map(dateStr => new Date(dateStr)).sort((a, b) => a - b);
-    const sortedFormattedDates = sortedDates.map(dateObj => dateObj.toLocaleDateString('en-GB'));
-    const sortedData = sortedDates.map(dateObj => {
-        const originalKey = dateObj.toLocaleDateString('en-US');
-        return dailySales[originalKey].revenue;
+    const ctx = document.getElementById('dailySalesChart').getContext('2d');
+
+    // Destroy the existing chart if it exists
+    if (dailySalesChartInstance) {
+        dailySalesChartInstance.destroy();
+    }
+
+    // Sort and prepare the data
+    const sortedDates = Object.keys(dailySales).sort((a, b) => new Date(a) - new Date(b));
+    const sortedRevenues = sortedDates.map(date => dailySales[date].revenue);
+
+    const formattedDates = sortedDates.map(date => {
+        const parts = date.split('/'); // Format: MM/DD/YYYY
+        return `${parts[1]}/${parts[0]}/${parts[2]}`; // Convert to DD/MM/YYYY
     });
 
-    const ctx = document.getElementById('dailySalesChart').getContext('2d');
-    new Chart(ctx, {
+    // Create a new chart and store it in the global variable
+    dailySalesChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: sortedFormattedDates,
+            labels: formattedDates,
             datasets: [{
                 label: 'Revenue (MYR)',
-                data: sortedData,
+                data: sortedRevenues,
                 borderColor: '#FF5733',
                 fill: false
             }]
         },
         options: {
             responsive: true,
-            scales: { y: { beginAtZero: true } }
+            maintainAspectRatio: false, // Fix chart height
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
         }
     });
 }
 
-// Function to render monthly sales chart
+let monthlySalesChartInstance = null; // Global variable for monthly chart instance
+
 function renderMonthlySalesChart(monthlySales) {
     const ctx = document.getElementById('monthlySalesChart').getContext('2d');
-    new Chart(ctx, {
+
+    // Destroy the existing chart if it exists
+    if (monthlySalesChartInstance) {
+        monthlySalesChartInstance.destroy();
+    }
+
+    const months = Object.keys(monthlySales);
+    const revenues = months.map(month => monthlySales[month].revenue);
+
+    // Create a new chart and store it in the global variable
+    monthlySalesChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: Object.keys(monthlySales),
+            labels: months,  // Ensure this is sorted in ascending order
             datasets: [{
                 label: 'Revenue (MYR)',
-                data: Object.values(monthlySales).map(month => month.revenue),
+                data: revenues,
                 backgroundColor: '#FFC300'
             }]
         },
         options: {
             responsive: true,
-            scales: { y: { beginAtZero: true } }
+            maintainAspectRatio: false, // Fix chart height
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
         }
     });
 }
 
-// Function to render popular attractions chart
-function renderAttractionChart(popularAttractions) {
+let showAllAttractions = false; // Variable to track whether all attractions or only top 5 are shown
+
+// Render popular attractions chart
+function renderAttractionChart(attractions) {
     const ctx = document.getElementById('attractionChart').getContext('2d');
-
-    // Destroy existing chart instance if it exists
-    if (attractionChartInstance) {
-        attractionChartInstance.destroy();
-    }
-
-    attractionChartInstance = new Chart(ctx, {
+    filterMonthlySales
+    const chartData = {
         type: 'bar',
         data: {
-            labels: popularAttractions.map(attraction => attraction[0]),
+            labels: attractions.map(attraction => attraction[0]),
             datasets: [{
                 label: 'Tickets Sold',
-                data: popularAttractions.map(attraction => attraction[1]),
+                data: attractions.map(attraction => attraction[1]),
                 backgroundColor: ['#FFAA33', '#FF5733', '#FFC300', '#DAF7A6', '#C70039']
             }]
         },
         options: {
             indexAxis: 'y',
             responsive: true,
-            scales: { x: { beginAtZero: true } }
+            maintainAspectRatio: false, // Allow the chart to adjust while maintaining fixed height
+            scales: {
+                x: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    };
+
+    // Destroy and recreate chart when switching between views
+    if (window.attractionChart && typeof window.attractionChart.destroy === 'function') {
+        window.attractionChart.destroy();
+    }
+
+    window.attractionChart = new Chart(ctx, chartData);
+}
+
+function renderSalesTable(salesByLocation) {
+    const salesTableBody = document.getElementById('salesTableBody');
+    salesTableBody.innerHTML = ''; // Clear any existing rows
+
+    // Create rows for each location
+    for (const location in salesByLocation) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${location}</td>
+            <td>${salesByLocation[location]}</td>
+        `;
+        salesTableBody.appendChild(row);
+    }
+}
+
+// Function to toggle between top 5 and all attractions
+function toggleAttractionsView(allAttractions, topAttractions) {
+    showAllAttractions = !showAllAttractions;
+    if (showAllAttractions) {
+        renderAttractionChart(allAttractions);  // Show all attractions
+        document.getElementById('toggleAttractionsBtn').innerText = 'Show Top 5';
+    } else {
+        renderAttractionChart(topAttractions);  // Show top 5 attractions
+        document.getElementById('toggleAttractionsBtn').innerText = 'Show All';
+    }
+}
+
+// Function to export cart data to CSV
+function exportCartDataToCSV(salesData, salesByLocation, allAttractions, dailySales, monthlySales) {
+    if (!salesData || salesData.length === 0) {
+        console.error('No sales data available for export.');
+        return; // Exit if no data
+    }
+
+    const csvRows = [];
+
+    // Add headers for Sales Data by Location
+    csvRows.push('Sales Data by Location');
+    csvRows.push('Location,Tickets Sold');
+    for (const location in salesByLocation) {
+        const row = `${location},${salesByLocation[location]}`;
+        csvRows.push(row);
+    }
+    csvRows.push(''); // Add an empty row for separation
+
+    // Add headers for Popular Attractions (this is where we ensure all attractions are exported)
+    csvRows.push('Popular Attractions');
+    csvRows.push('Attraction Name,Tickets Sold');
+    allAttractions.forEach(attraction => {
+        const row = `${attraction[0]},${attraction[1]}`; // Export all attractions
+        csvRows.push(row);
+    });
+    csvRows.push(''); // Add an empty row for separation
+
+    // Add headers for Daily Sales
+    csvRows.push('Daily Sales');
+    csvRows.push('Date,Revenue (MYR),Tickets Sold');
+    for (const date in dailySales) {
+        const { revenue, ticketsSold } = dailySales[date];
+        const row = `${date},${revenue},${ticketsSold}`;
+        csvRows.push(row);
+    }
+    csvRows.push(''); // Add an empty row for separation
+
+    // Add headers for Monthly Sales
+    csvRows.push('Monthly Sales');
+    csvRows.push('Month,Revenue (MYR),Tickets Sold');
+    for (const month in monthlySales) {
+        const { revenue, ticketsSold } = monthlySales[month];
+        const row = `${month},${revenue},${ticketsSold}`;
+        csvRows.push(row);
+    }
+
+    // Create a Blob from the CSV string
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+
+    // Create a link to download the CSV
+    const a = document.createElement('a');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'sales_data.csv');
+    a.click();
+
+    // Cleanup
+    URL.revokeObjectURL(url);
+}
+
+
+function filterCharts() {
+    const dailyStartDate = document.getElementById('dailySalesStartDate').value;
+    const dailyEndDate = document.getElementById('dailySalesEndDate').value;
+    const monthlyStartMonth = document.getElementById('monthlySalesStartMonth').value;
+    const monthlyEndMonth = document.getElementById('monthlySalesEndMonth').value;
+
+    // Filter daily sales based on start and end date
+    if (dailyStartDate && dailyEndDate) {
+        const filteredDailySales = filterDailySales(dailyStartDate, dailyEndDate, dailySales); // dailySales is global
+        renderDailySalesChart(filteredDailySales);
+    }
+
+    // Filter monthly sales based on start and end month
+    if (monthlyStartMonth && monthlyEndMonth) {
+        const filteredMonthlySales = filterMonthlySales(monthlyStartMonth, monthlyEndMonth);
+        renderMonthlySalesChart(filteredMonthlySales);
+    }
+}
+
+function filterDailySales(startDate, endDate) {
+    const dailySalesFiltered = {};
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999); // Set to end of the day
+
+    Object.keys(dailySales).forEach(date => {
+        const currentDate = new Date(date);
+        if (currentDate >= start && currentDate <= end) {
+            dailySalesFiltered[date] = dailySales[date];
         }
     });
+
+    return dailySalesFiltered;
+}
+
+
+function filterMonthlySales(startMonth, endMonth) {
+    const monthlySalesFiltered = {};
+
+    // Create Date objects for comparison
+    const start = new Date(`${startMonth}-01`);  // Start of the start month
+    const end = new Date(`${endMonth}-01`);      // Start of the end month
+    end.setMonth(end.getMonth() + 1);            // Move to the next month to include the full end month
+
+    // Loop through the months in monthlySales and filter based on the start and end range
+    Object.keys(monthlySales).forEach(month => {
+        const currentMonth = new Date(`${month}-01`);  // Convert month to a Date object
+
+        // Check if the current month is within the range [start, end)
+        if (currentMonth >= start && currentMonth < end) {
+            monthlySalesFiltered[month] = monthlySales[month];  // Include month in filtered results
+        }
+    });
+
+    // Sort the filtered months in ascending order
+    const sortedMonths = Object.keys(monthlySalesFiltered).sort();
+
+    // Create a new object with sorted months
+    const sortedMonthlySalesFiltered = {};
+    sortedMonths.forEach(month => {
+        sortedMonthlySalesFiltered[month] = monthlySalesFiltered[month];
+    });
+
+    console.log('Filtered and Sorted Monthly Sales:', sortedMonthlySalesFiltered); // Debugging line
+    return sortedMonthlySalesFiltered;
 }
