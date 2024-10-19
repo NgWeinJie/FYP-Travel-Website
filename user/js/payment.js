@@ -343,14 +343,14 @@ async function generateTicketsPDF(user, items) {
 
 
 // Function to send order summary email
-async function sendOrderSummaryEmail(email, totalAmount, pdfData, orderItems) {
+async function sendOrderSummaryEmail(email, totalAmount, pdfData, orderItems, userDetails) {
     try {
         const response = await fetch('http://localhost:3000/send-email', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ email, totalAmount, pdfData, orderItems }),
+            body: JSON.stringify({ email, totalAmount, pdfData, orderItems, ...userDetails }),
         });
 
         if (!response.ok) {
@@ -384,7 +384,7 @@ async function processPayment() {
             coinsDiscount: coinsDiscount,
             items: [],
             userDetails: await fetchUserDetails(user.uid),
-            orderDate: new Date(),
+            orderDate: new Date(), // Store current date
         };
 
         const cartDataArray = await fetchCartData(user.uid);
@@ -440,8 +440,14 @@ async function processPayment() {
         // Generate a single PDF with all tickets on separate pages
         const pdfData = await generateTicketsPDF(user, itemsForPDF);
 
+        // Add this section here
         const base64PDF = pdfData.split(',')[1]; // Get only the base64 part
-        await sendOrderSummaryEmail(user.email, finalTotal, base64PDF, orderData.items); // Send the base64 PDF
+        await sendOrderSummaryEmail(user.email, finalTotal, base64PDF, orderData.items, {
+            name: `${orderData.userDetails.firstName} ${orderData.userDetails.lastName}`,
+            contactNumber: orderData.userDetails.contactNumber,
+            orderId: orderId,
+            orderDate: orderData.orderDate.toISOString(), // Send the date in ISO format
+        });
 
         alert('Payment and Ticket Generation Successful!');
         window.location.href = 'home.html';

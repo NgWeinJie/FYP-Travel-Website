@@ -1,0 +1,43 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa; /* Light background for better contrast */
+}
+
+h1 {
+    color: #FFAA33; /* Title color */
+}
+
+.feedback-item {
+    border-radius: 10px; /* Rounded corners for the feedback cards */
+    transition: transform 0.2s, box-shadow 0.2s; /* Smooth transition on hover */
+}
+
+.feedback-item:hover {
+    transform: translateY(-5px); /* Lift effect on hover */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Shadow effect */
+}
+
+.card {
+    border: none; /* Remove default border */
+}
+
+#feedback-list {
+    display: flex;
+    flex-direction: column; /* Stack feedback items vertically */
+    gap: 20px; /* Space between feedback items */
+    padding: 20px; /* Padding around feedback list */
+}
+
+.card-body {
+    background-color: #ffffff; /* White background for cards */
+    border-radius: 10px; /* Smooth corners */
+}
+
+.feedback-details {
+    margin-top: 15px; /* Space above feedback details */
+    font-size: 14px; /* Smaller font for details */
+}
+
+.text-muted {
+    color: #6c757d; /* Muted text color for footer text */
+}

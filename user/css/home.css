@@ -99,7 +99,7 @@ body {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    display: none;
+    display: none; /* Initially hidden */
     z-index: 1000;
     background-color: #FFAA33;
     color: #fff;
@@ -108,7 +108,7 @@ body {
     width: 50px;
     height: 50px;
     text-align: center;
-    line-height: 50px;
+    line-height: 40px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     cursor: pointer;
     font-size: 24px;
@@ -220,6 +220,79 @@ body {
     color: #0056b3;
 }
 
+#recommendations-section {
+    background-color: #fccb81;
+    padding: 40px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+#recommendations .card {
+    transition: all 0.3s ease-in-out;
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+#recommendations .card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+#recommendations .card-img-top {
+    height: 250px;
+    object-fit: cover;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+#recommendations .card-body {
+    text-align: center;
+    background-color: #ffffff;
+    padding: 20px;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+
+#recommendations .card-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#recommendations .card-text {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.bg-footer {
+    background-color: #FFAA33; /* Your specified color */
+}
+
+.footer {
+    background: linear-gradient(135deg, #FFAA33, #FFCC66);
+}
+
+.footer a {
+    color: white;
+    transition: color 0.3s;
+}
+
+
+.footer a:hover {
+    color: #ffd700; 
+}
+
+.footer .list-inline-item {
+    margin: 0 10px;
+}
+
+.footer .fab {
+    font-size: 24px;
+}
 
 /* Ensure the slide remains responsive */
 @media (max-width: 768px) {

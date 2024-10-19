@@ -177,16 +177,16 @@ document.addEventListener('DOMContentLoaded', () => {
     
         liveChatListener = db.collection('messages')
             .where('sessionId', '==', sessionId)
-            .orderBy('timestamp')  // Ensure ordering by timestamp
+            .orderBy('timestamp')  // Order by timestamp to ensure message sequence
             .onSnapshot(snapshot => {
+                console.log("Snapshot size:", snapshot.size); // Log snapshot size
                 snapshot.docChanges().forEach(change => {
                     if (change.type === 'added') {
                         const msg = change.doc.data();
-                        console.log("New message received:", msg);
-                        appendMessage(document.getElementById('chat-messages'), msg);  // Display the message
+                        console.log("New message received:", msg);  // Log the received message
+                        appendMessage(document.getElementById('chat-messages'), msg);  // Add message to the UI
                     }
                 });
-    
                 // Auto-scroll to the latest message
                 document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
             }, error => {
@@ -194,8 +194,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
     
-    
-
 
     function stopLiveChatListener() {
         if (liveChatListener) {
@@ -291,6 +289,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update the session's last message timestamp
         await db.collection('chat_sessions').doc(sessionId).update({
             lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+            console.log("Updated session's lastMessageAt successfully.");
+        }).catch(error => {
+            console.error("Error updating lastMessageAt: ", error);
         });
     
         // Clear the input fields
@@ -374,7 +376,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const msgElement = document.createElement('div');
         msgElement.classList.add('chat-message');
     
-        // Handle image messages
+        // Log message data for debugging
+        console.log('Appending message from:', msg.sender, 'Message:', msg.text);
+    
+        // Check if it's an image message
         if (msg.imageUrl) {
             const imgElement = document.createElement('img');
             imgElement.src = msg.imageUrl;
@@ -383,18 +388,17 @@ document.addEventListener('DOMContentLoaded', () => {
             msgElement.appendChild(imgElement);
         }
     
-        // Display the message text
+        // Display the message text with the correct sender prefix
         const textElement = document.createElement('p');
         const senderPrefix = msg.sender === 'user' ? 'You: ' : 'Admin: ';
         textElement.textContent = senderPrefix + msg.text;
         msgElement.appendChild(textElement);
     
         container.appendChild(msgElement);
-        container.scrollTop = container.scrollHeight; // Auto-scroll to the latest message
+        container.scrollTop = container.scrollHeight; // Scroll to the latest message
     }
     
     
-
     // Clear messages from the container
     function clearMessages(containerId) {
         const container = document.getElementById(containerId);
@@ -710,51 +714,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Fetch recommendations for the user
     async function getRecommendations() {
-        const userId = auth.currentUser ? auth.currentUser.uid : null;
-        if (!userId) return;
-
         try {
-            // Fetch user's favorite attractions
-            const userFavoritesSnapshot = await db.collection('user_favorites').where('userId', '==', userId).get();
-            const favoriteAttractionIds = userFavoritesSnapshot.docs.map(doc => doc.data().attractionId);
-
-            // If no favorites, recommend popular attractions
-            if (favoriteAttractionIds.length === 0) {
-                recommendPopularAttractions();
-                return;
-            }
-
-            // Fetch details of favorite attractions
-            const favoriteAttractions = await Promise.all(favoriteAttractionIds.map(async id => {
-                const attractionDoc = await db.collection('attractions').doc(id).get();
-                return attractionDoc.data();
-            }));
-
-            // Recommend similar attractions based on favorites
-            recommendSimilarAttractions(favoriteAttractions);
-        } catch (error) {
-            console.error("Error fetching recommendations: ", error);
-        }
-    }
-
-    // Recommend popular attractions
-    async function recommendPopularAttractions() {
-        try {
-            const snapshot = await db.collection('attractions').orderBy('popularity', 'desc').limit(5).get();
+            // Fetch all attractions
+            const attractionsData = await fetchAllAttractions();
+    
+            // Fetch ticket sales data
+            const salesData = await fetchTicketSalesData(attractionsData);
+    
+            // Process sales data to determine the most popular attractions
+            const { topAttractions } = processSalesData(salesData);
+    
             const recommendationsContainer = document.getElementById('recommendations');
-
-            if (snapshot.empty) {
+            if (topAttractions.length === 0) {
                 console.log('No popular attractions found.');
                 recommendationsContainer.innerHTML = "<p>No recommendations available.</p>";
                 return;
             }
-
+    
+            // Generate HTML for the top attractions
             let htmlContent = '';
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                const mediaElement = createMediaElement(data.images);
-                const attractionId = doc.id;
-
+            topAttractions.forEach(attraction => {
+                const attractionId = attraction[0]; // Attraction ID
+                const attractionData = attractionsData[attractionId]; // Get the corresponding attraction data
+                const mediaElement = createMediaElement(attractionData.images); // Media element (image or video)
+    
+                // Create the card HTML
                 const cardHTML = `
                     <div class="col-md-4 mb-4">
                         <div class="card" data-attraction-id="${attractionId}">
@@ -762,8 +746,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 ${mediaElement}
                             </a>
                             <div class="card-body">
-                                <h5 class="card-title">${data.destinationName}</h5>
-                                <p class="card-text">From MYR ${data.ticketPriceMalaysianAdult}</p>
+                                <h5 class="card-title">${attractionData.destinationName}</h5>
+                                <p class="card-text">From MYR ${attractionData.ticketPriceMalaysianAdult}</p>
                                 <div class="like-dislike">
                                     <button class="btn btn-light like-button" data-attraction-id="${attractionId}">
                                         <i class="fas fa-thumbs-up"></i> Like <span class="like-count">0</span>
@@ -781,87 +765,85 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 htmlContent += cardHTML;
             });
-
+    
             recommendationsContainer.innerHTML = htmlContent;
-
-            // Event listeners for like, dislike, and favorite buttons
+    
+            // Add event listeners for like, dislike, and favorite buttons
             document.querySelectorAll('.like-button, .dislike-button').forEach(button => {
                 button.addEventListener('click', handleLikeDislikeClick);
             });
-
+    
             document.querySelectorAll('.favorite-button').forEach(button => {
                 button.addEventListener('click', handleFavoriteClick);
             });
-
+    
         } catch (error) {
-            console.error("Error recommending popular attractions: ", error);
-        }
-    }
-
-    // Recommend similar attractions based on user's favorites
-    async function recommendSimilarAttractions(favoriteAttractions) {
-        try {
+            console.error("Error fetching recommendations:", error);
             const recommendationsContainer = document.getElementById('recommendations');
-            recommendationsContainer.innerHTML = ""; // Clear previous recommendations
-
-            // Fetch similar attractions (for simplicity, recommending other attractions in the same state)
-            const favoriteStates = [...new Set(favoriteAttractions.map(attraction => attraction.state))];
-            const similarAttractionsSnapshot = await db.collection('attractions').where('state', 'in', favoriteStates).limit(5).get();
-
-            if (similarAttractionsSnapshot.empty) {
-                console.log('No similar attractions found.');
-                recommendationsContainer.innerHTML = "<p>No recommendations available.</p>";
-                return;
-            }
-
-            let htmlContent = '';
-            similarAttractionsSnapshot.forEach(doc => {
-                const data = doc.data();
-                const mediaElement = createMediaElement(data.images);
-                const attractionId = doc.id;
-
-                const cardHTML = `
-                    <div class="col-md-4 mb-4">
-                        <div class="card" data-attraction-id="${attractionId}">
-                            <a href="attraction_details.html?id=${attractionId}" class="card-link">
-                                ${mediaElement}
-                            </a>
-                            <div class="card-body">
-                                <h5 class="card-title">${data.destinationName}</h5>
-                                <p class="card-text">From MYR ${data.ticketPriceMalaysianAdult}</p>
-                                <div class="like-dislike">
-                                    <button class="btn btn-light like-button" data-attraction-id="${attractionId}">
-                                        <i class="fas fa-thumbs-up"></i> Like <span class="like-count">0</span>
-                                    </button>
-                                    <button class="btn btn-light dislike-button" data-attraction-id="${attractionId}">
-                                        <i class="fas fa-thumbs-down"></i> Dislike <span class="dislike-count">0</span>
-                                    </button>
-                                    <button class="btn btn-light favorite-button" data-attraction-id="${attractionId}">
-                                        <i class="far fa-heart favorite-icon"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                htmlContent += cardHTML;
-            });
-
-            recommendationsContainer.innerHTML = htmlContent;
-
-            // Event listeners for like, dislike, and favorite buttons
-            document.querySelectorAll('.like-button, .dislike-button').forEach(button => {
-                button.addEventListener('click', handleLikeDislikeClick);
-            });
-
-            document.querySelectorAll('.favorite-button').forEach(button => {
-                button.addEventListener('click', handleFavoriteClick);
-            });
-
-        } catch (error) {
-            console.error("Error recommending similar attractions: ", error);
+            recommendationsContainer.innerHTML = "<p>Error loading recommendations. Please try again later.</p>";
         }
     }
+
+    // Fetch all attractions data
+    async function fetchAllAttractions() {
+        const attractionsSnapshot = await db.collection('attractions').get();
+        const attractionsData = {};
+        attractionsSnapshot.forEach(doc => {
+            attractionsData[doc.id] = doc.data();
+        });
+        return attractionsData;
+    }
+
+    // Fetch ticket sales data and link to attractions
+    async function fetchTicketSalesData(attractionsData) {
+        const ordersSnapshot = await db.collection('orders').get();
+        const salesData = [];
+
+        ordersSnapshot.forEach(doc => {
+            const orderData = doc.data();
+            const processedItems = [];
+
+            orderData.items.forEach(item => {
+                const attractionData = attractionsData[item.attractionId];
+                if (attractionData) {
+                    processedItems.push({
+                        ...item,
+                        state: attractionData.state
+                    });
+                }
+            });
+
+            salesData.push({
+                ...orderData,
+                items: processedItems
+            });
+        });
+
+        return salesData;
+    }
+
+    // Process sales data to determine the most popular attractions
+    function processSalesData(salesData) {
+        const attractionSales = {};
+
+        salesData.forEach(order => {
+            order.items.forEach(item => {
+                const { attractionId, quantity } = item;
+                if (!attractionSales[attractionId]) {
+                    attractionSales[attractionId] = 0;
+                }
+                attractionSales[attractionId] += quantity; // Accumulate tickets sold
+            });
+        });
+
+        // Sort attractions by number of tickets sold
+        const topAttractions = Object.entries(attractionSales)
+            .sort(([, a], [, b]) => b - a) // Sort by quantity sold
+            .slice(0, 3); // Take top 3 attractions
+
+        return { topAttractions };
+    }
+
 
     // Normalize string for search
     function normalizeString(str) {
@@ -875,44 +857,47 @@ document.addEventListener('DOMContentLoaded', () => {
         const recommendationsSection = document.getElementById('recommendations-section');
         const kualaLumpurSection = document.getElementById('kuala-lumpur-section');
         const penangSection = document.getElementById('penang-section');
-
+        const promotionSlide = document.getElementById('promotion-slide'); // Reference to the promotion slide
+    
         if (!query) {
             searchResultsSection.style.display = 'none';
             recommendationsSection.style.display = 'block';
             kualaLumpurSection.style.display = 'block';
             penangSection.style.display = 'block';
+            promotionSlide.style.display = 'block'; // Show promotion slide if no query
             return;
         }
-
+    
         searchResultsSection.style.display = 'block';
         recommendationsSection.style.display = 'none';
         kualaLumpurSection.style.display = 'none';
         penangSection.style.display = 'none';
+        promotionSlide.style.display = 'none'; // Hide promotion slide when searching
         searchResultsContainer.innerHTML = ""; // Clear previous search results
-
+    
         const normalizedQuery = normalizeString(query);
-
+    
         try {
             const snapshot = await db.collection('attractions').get();
-
+    
             const searchResults = snapshot.docs.filter(doc => {
                 const data = doc.data();
                 const normalizedDestinationName = normalizeString(data.destinationName);
                 return normalizedDestinationName.includes(normalizedQuery);
             });
-
+    
             if (searchResults.length === 0) {
                 console.log('No search results found.');
                 searchResultsContainer.innerHTML = "<p>No search results found.</p>";
                 return;
             }
-
+    
             let htmlContent = '';
             searchResults.forEach(doc => {
                 const data = doc.data();
                 const mediaElement = createMediaElement(data.images);
                 const attractionId = doc.id;
-
+    
                 const cardHTML = `
                     <div class="col-md-4 mb-4">
                         <div class="card" data-attraction-id="${attractionId}">
@@ -939,18 +924,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 htmlContent += cardHTML;
             });
-
+    
             searchResultsContainer.innerHTML = htmlContent;
-
+    
             // Add event listeners for like, dislike, and favorite buttons in search results
             document.querySelectorAll('.like-button, .dislike-button').forEach(button => {
                 button.addEventListener('click', handleLikeDislikeClick);
             });
-
+    
             document.querySelectorAll('.favorite-button').forEach(button => {
                 button.addEventListener('click', handleFavoriteClick);
             });
-
+    
         } catch (error) {
             console.error("Error searching attractions: ", error);
             searchResultsContainer.innerHTML = "<p>Error loading search results. Please try again later.</p>";
@@ -1030,4 +1015,21 @@ async function loadPromotionSlide() {
 // Call the function to load the promotion slide
 loadPromotionSlide();
 
+});
+
+// Show the Back to Top button when the user scrolls down
+window.onscroll = function() { scrollFunction(); };
+
+function scrollFunction() {
+    const backToTopButton = document.getElementById("backToTop");
+    if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
+        backToTopButton.style.display = "block";
+    } else {
+        backToTopButton.style.display = "none";
+    }
+}
+
+// Scroll to top when the button is clicked
+document.getElementById("backToTop").addEventListener("click", function() {
+    window.scrollTo({top: 0, behavior: 'smooth'});
 });

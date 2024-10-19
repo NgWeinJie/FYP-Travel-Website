@@ -1,0 +1,23 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+.privacy-content {
+    line-height: 1.6; 
+}
+
+.privacy-content h3 {
+    margin-top: 20px; 
+}
+
+.privacy-content p {
+    margin-bottom: 15px; 
+}
+
+.privacy-content ul {
+    margin-bottom: 20px; 
+}
+
+.container {
+    max-width: 800px; 
+}

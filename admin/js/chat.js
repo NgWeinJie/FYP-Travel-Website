@@ -92,26 +92,44 @@ function loadChatMessages(sessionId) {
 // Admin send message
 document.getElementById('send-chat-btn').addEventListener('click', async () => {
     const message = document.getElementById('chat-input').value;
+    
+    // Initialize imageUrl (in case there is no image uploaded)
+    let imageUrl = null;
+
+    // If there's a valid message and session ID
     if (message.trim() !== '' && currentSessionId) {
         console.log("Sending message: ", message);
         console.log("Admin sessionId: ", currentSessionId);
 
         const now = new Date();
-        await db.collection('messages').add({
+
+        // Prepare message data
+        const messageData = {
             text: message,
             timestamp: now,
             sender: 'admin',
             sessionId: currentSessionId,
-            status: 'active'  // Ensure status is set to 'active'
-        });
+            status: 'active'
+        };
 
+        // Only include imageUrl if it's defined (optional: add image handling)
+        if (imageUrl) {
+            messageData.imageUrl = imageUrl;
+        }
+
+        // Send the message to Firestore
+        await db.collection('messages').add(messageData);
+
+        // Update lastMessageAt in chat_sessions
         await db.collection('chat_sessions').doc(currentSessionId).update({
-            lastMessageAt: firebase.firestore.FieldValue.serverTimestamp() // Ensure lastMessageAt is also set
+            lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
-        document.getElementById('chat-input').value = ''; // Clear input field after sending
+        // Clear the chat input field after sending
+        document.getElementById('chat-input').value = '';
     }
 });
+
 
 document.getElementById('end-chat-btn').addEventListener('click', async () => {
     if (currentSessionId) {

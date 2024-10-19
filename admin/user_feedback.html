@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Customer Support</title>
+    <title>User Feedback</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/chat.css">
-    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/user_feedback.css">
     <link rel="stylesheet" href="css/header.css">
 </head>
 <body>
@@ -42,21 +41,16 @@
         </div>
     </header>
 
-    <div class="container mt-5">
-        <h1>Admin Customer Support</h1>
-        <div id="user-sessions" class="border p-3" style="height: 150px; overflow-y: scroll;">
-            <!-- List of user sessions will be dynamically added here -->
+    <div class="container mt-5 mb-5">
+        <h1 class="text-center mb-4">User Feedback</h1>
+        <div id="feedback-list" class="d-flex flex-column">
+            <!-- User feedback will be dynamically added here -->
         </div>
-        <div id="chat-messages" class="border p-3 mt-3" style="height: 300px; overflow-y: scroll;"></div>
-        <input type="text" id="chat-input" class="form-control" placeholder="Type a message...">
-        <button id="send-chat-btn" class="btn btn-primary mt-2">Send</button>
-        <button id="end-chat-btn" class="btn btn-danger mt-2">End Chat</button>
     </div>
 
-    <!-- Include Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="js/chat.js"></script>
+    <script src="js/user_feedback.js"></script>
 </body>
 </html>
