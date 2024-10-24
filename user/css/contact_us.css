@@ -6,21 +6,8 @@ body {
     background-color: #FFAA33;
 }
 
-
-
-/* Tab navigation styling */
-.nav-tabs .nav-link {
-    color: #555; 
-    background-color: #f8f9fa;
-    border: 1px solid #ddd; 
-    border-radius: 0;
-}
-
-.nav-tabs .nav-link.active {
-    color: #fff; 
-    background-color: #FFAA33;
-    border-color: #FFAA33; 
-    border-radius: 0;
+.navbar-brand, .nav-link {
+    color: #fff !important;
 }
 
 .card {
@@ -32,28 +19,45 @@ body {
     color: #fff; 
 }
 
-/* Chat box style */
+.btn-primary {
+    background-color: #FFAA33;
+    color: #fff;
+    border-color: #FFAA33;
+}
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+    background-color: #FFAA33; 
+    border-color: #FFAA33; 
+    box-shadow: none; 
+}
+
+.btn-primary:active {
+    background-color: #FFAA33;
+    border-color: #FFAA33; 
+    opacity: 0.8;
+}
+
+.text-danger {
+    color: #dc3545;
+}
+
+.text-success {
+    color: #28a745;
+}
+
+.error {
+    font-size: 0.875rem;
+}
+
+/* Chat messages style */
 .chat-box {
     background-color: #e5ddd5;
     padding: 10px;
     border-radius: 5px;
-    height: 300px;
-    overflow-y: auto;
 }
 
 /* User message bubble */
 .message.user {
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 10px;
-    max-width: 70%;
-    margin: 5px 0;
-    align-self: flex-start;
-    word-wrap: break-word;
-}
-
-/* Admin message bubble */
-.message.admin {
     background-color: #f8dc26;
     border-radius: 8px;
     padding: 10px;
@@ -63,13 +67,21 @@ body {
     word-wrap: break-word;
 }
 
+/* Admin message bubble */
+.message.admin {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 10px;
+    max-width: 70%;
+    margin: 5px 0;
+    align-self: flex-start;
+    word-wrap: break-word;
+}
+
 /* General chat styling */
 #chat-messages {
     display: flex;
     flex-direction: column;
-    background-color: #e5ddd5; /* Matching the chat box background */
-    padding: 10px;
-    border-radius: 8px;
 }
 
 /* Chat input area */
@@ -83,7 +95,6 @@ body {
     resize: none;
     border-radius: 20px;
     padding: 10px;
-    width: 100%;
 }
 
 /* Date Divider */
@@ -96,10 +107,8 @@ body {
     display: block; /* Ensures it takes full width */
 }
 
-/* Time below each message */
 .message-time {
-    font-size: 0.7rem;
+    font-size: 0.5rem;
     text-align: right;
     display: block;
-    color: #888;
 }

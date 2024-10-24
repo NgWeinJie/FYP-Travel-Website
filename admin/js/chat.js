@@ -14,134 +14,151 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-console.log("Firebase initialized"); // Debugging log
+document.addEventListener('DOMContentLoaded', function() {
+    fetchTickets();
+    showOngoingChats(); // Show ongoing chats by default
+});
 
-let currentSessionId = null;
+// Show Ongoing Chats Section
+function showOngoingChats() {
+    document.getElementById('ongoing-chats-section').classList.remove('d-none');
+    document.getElementById('closed-chats-section').classList.add('d-none');
+    document.getElementById('ongoing-tab').classList.add('active');
+    document.getElementById('closed-tab').classList.remove('active');
 
-// Function to load user sessions in real-time with queue numbers
-function loadUserSessions() {
-    console.log("Loading user sessions"); // Debugging log
-    const userSessionsContainer = document.getElementById('user-sessions');
-    userSessionsContainer.innerHTML = '';
-
-    db.collection('chat_sessions')
-        .where('status', '==', 'active')
-        .orderBy('lastMessageAt', 'asc') // Order by last message timestamp (queue system)
-        .onSnapshot(snapshot => {
-            console.log("Sessions snapshot: ", snapshot); // Debugging log
-            userSessionsContainer.innerHTML = ''; // Clear the current sessions
-
-            if (snapshot.empty) {
-                console.log("No active sessions found");
-                userSessionsContainer.innerHTML = '<p>No active sessions.</p>';
-                return;
-            }
-
-            let queueNumber = 1;
-            snapshot.forEach(doc => {
-                const session = doc.data();
-                console.log("Loaded session: ", session); // Debugging log
-                const sessionElement = document.createElement('div');
-                sessionElement.textContent = `Queue ${queueNumber}: Session ${session.sessionId}`;
-                sessionElement.className = 'session-item';
-                sessionElement.addEventListener('click', () => {
-                    currentSessionId = session.sessionId;
-                    loadChatMessages(currentSessionId);
-                });
-                userSessionsContainer.appendChild(sessionElement);
-                queueNumber++;
-            });
-        }, error => {
-            console.error("Error loading user sessions: ", error);
-        });
+    fetchTickets(); // Fetch tickets again to reset the display for ongoing chats
 }
 
-// Function to load chat messages for a session in real-time
-function loadChatMessages(sessionId) {
-    console.log("Loading chat messages for session: ", sessionId); // Debugging log
-    console.log("Admin sessionId: ", currentSessionId);
-    const chatMessages = document.getElementById('chat-messages');
-    chatMessages.innerHTML = '';
+// Show Closed Chats Section
+function showClosedChats() {
+    document.getElementById('closed-chats-section').classList.remove('d-none');
+    document.getElementById('ongoing-chats-section').classList.add('d-none');
+    document.getElementById('closed-tab').classList.add('active');
+    document.getElementById('ongoing-tab').classList.remove('active');
 
-    db.collection('messages')
-        .where('sessionId', '==', sessionId)
-        .orderBy('timestamp')
-        .onSnapshot(snapshot => {
-            console.log("Messages snapshot: ", snapshot); // Debugging log
-
-            chatMessages.innerHTML = ''; // Clear current messages
-
-            if (snapshot.empty) {
-                console.log("No messages found for this session");
-                chatMessages.innerHTML = '<p>No messages found.</p>';
-                return;
-            }
-
-            snapshot.forEach(doc => {
-                const msg = doc.data();
-                console.log("Loaded message: ", msg); // Debugging log
-                const msgElement = document.createElement('div');
-                msgElement.textContent = msg.sender === 'user' ? `User: ${msg.text}` : `You: ${msg.text}`;
-                chatMessages.appendChild(msgElement);
-            });
-        }, error => {
-            console.error("Error loading chat messages: ", error);
-        });
+    fetchTickets(); // Fetch tickets again to reset the display for closed chats
 }
 
-// Admin send message
-document.getElementById('send-chat-btn').addEventListener('click', async () => {
-    const message = document.getElementById('chat-input').value;
-    
-    // Initialize imageUrl (in case there is no image uploaded)
-    let imageUrl = null;
+// Fetch and display tickets
+function fetchTickets() {
+    db.collection('tickets').orderBy('created_at', 'asc').onSnapshot(snapshot => {
+        const ongoingChats = document.getElementById('ongoing-chats');
+        const closedChats = document.getElementById('closed-chats');
+        ongoingChats.innerHTML = '';
+        closedChats.innerHTML = '';
 
-    // If there's a valid message and session ID
-    if (message.trim() !== '' && currentSessionId) {
-        console.log("Sending message: ", message);
-        console.log("Admin sessionId: ", currentSessionId);
+        let firstOngoingChatId = null;
+        let firstClosedChatId = null;
 
-        const now = new Date();
+        const closedTickets = []; // Array to store closed tickets for sorting
 
-        // Prepare message data
-        const messageData = {
-            text: message,
-            timestamp: now,
-            sender: 'admin',
-            sessionId: currentSessionId,
-            status: 'active'
-        };
+        snapshot.forEach(doc => {
+            const ticket = doc.data();
+            const ticketItem = document.createElement('div');
+            ticketItem.classList.add('ticket-item', 'border', 'p-2', 'mb-2');
+            ticketItem.textContent = `${ticket.subject} - ${new Date(ticket.created_at?.seconds * 1000).toLocaleString()}`;
+            ticketItem.onclick = () => openChat(doc.id, ticket.status === 'open');
 
-        // Only include imageUrl if it's defined (optional: add image handling)
-        if (imageUrl) {
-            messageData.imageUrl = imageUrl;
+            if (ticket.status === 'open') {
+                ongoingChats.appendChild(ticketItem);
+                if (!firstOngoingChatId) {
+                    firstOngoingChatId = doc.id;
+                }
+            } else {
+                closedTickets.push({ docId: doc.id, ticketItem });
+            }
+        });
+
+        // Sort the closed tickets by created_at in descending order (newest first)
+        closedTickets.sort((a, b) => {
+            const timeA = new Date(a.ticketItem.textContent.split(' - ')[1]).getTime();
+            const timeB = new Date(b.ticketItem.textContent.split(' - ')[1]).getTime();
+            return timeB - timeA;
+        });
+
+        // Append the sorted closed tickets
+        closedTickets.forEach(ticket => {
+            closedChats.appendChild(ticket.ticketItem);
+            if (!firstClosedChatId) {
+                firstClosedChatId = ticket.docId;
+            }
+        });
+
+        // Automatically open the first ongoing or closed chat based on the active tab
+        if (document.getElementById('ongoing-tab').classList.contains('active') && firstOngoingChatId) {
+            openChat(firstOngoingChatId, true);
+        } else if (document.getElementById('closed-tab').classList.contains('active') && firstClosedChatId) {
+            openChat(firstClosedChatId, false);
         }
+    });
+}
 
-        // Send the message to Firestore
-        await db.collection('messages').add(messageData);
+// Open chat for a specific ticket
+function openChat(ticketId, isOpen) {
+    const chatWindow = document.getElementById('chat-window');
+    const chatMessages = document.getElementById('chat-messages');
+    const adminMessage = document.getElementById('adminMessage');
+    const sendAdminMessage = document.getElementById('sendAdminMessage');
+    const closeTicketButton = document.getElementById('closeTicket');
 
-        // Update lastMessageAt in chat_sessions
-        await db.collection('chat_sessions').doc(currentSessionId).update({
-            lastMessageAt: firebase.firestore.FieldValue.serverTimestamp()
+    chatWindow.style.display = 'block';
+    db.collection('tickets').doc(ticketId).onSnapshot(doc => {
+        const ticket = doc.data();
+        chatMessages.innerHTML = ''; // Clear the chat messages before rendering
+        let lastDate = '';
+
+        ticket.messages.forEach(msg => {
+            const messageDate = new Date(msg.timestamp.seconds * 1000).toLocaleDateString();
+            const messageTime = new Date(msg.timestamp.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            // Display the date if it's different from the last message's date
+            if (messageDate !== lastDate) {
+                const dateDiv = document.createElement('div');
+                dateDiv.classList.add('date-divider');
+                dateDiv.textContent = messageDate;
+                chatMessages.appendChild(dateDiv);
+                lastDate = messageDate;
+            }
+
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message', msg.sender === 'admin' ? 'admin' : 'user', 'mb-2');
+            msgDiv.innerHTML = `<div>${msg.message}</div><div class="message-time">${messageTime}</div>`;
+            chatMessages.appendChild(msgDiv);
         });
 
-        // Clear the chat input field after sending
-        document.getElementById('chat-input').value = '';
-    }
-});
+        // Scroll to the bottom of the chat
+        chatMessages.scrollTop = chatMessages.scrollHeight;
 
+        // Enable or disable admin interaction based on chat status
+        if (isOpen) {
+            adminMessage.disabled = false;
+            sendAdminMessage.style.display = 'inline-block';
+            closeTicketButton.style.display = 'inline-block';
+        } else {
+            adminMessage.disabled = true;
+            sendAdminMessage.style.display = 'none';
+            closeTicketButton.style.display = 'none';
+        }
+    });
 
-document.getElementById('end-chat-btn').addEventListener('click', async () => {
-    if (currentSessionId) {
-        console.log("Ending chat session: ", currentSessionId); // Debugging log
-        await db.collection('chat_sessions').doc(currentSessionId).update({
-            status: 'ended',
-            endedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        currentSessionId = null;
-        document.getElementById('chat-messages').innerHTML = '';
-    }
-});
+    // Sending a message
+    sendAdminMessage.onclick = async () => {
+        const message = adminMessage.value;
+        if (message.trim()) {
+            await db.collection('tickets').doc(ticketId).update({
+                messages: firebase.firestore.FieldValue.arrayUnion({
+                    sender: 'admin',
+                    message,
+                    timestamp: new Date()
+                })
+            });
+            adminMessage.value = ''; // Clear input after sending
+        }
+    };
 
-// Load user sessions on page load
-loadUserSessions();
+    // Closing a ticket
+    closeTicketButton.onclick = async () => {
+        await db.collection('tickets').doc(ticketId).update({ status: 'closed' });
+        chatWindow.style.display = 'none'; // Hide the chat window after closing
+    };
+}

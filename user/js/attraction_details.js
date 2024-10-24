@@ -364,6 +364,14 @@ async function addToCart() {
     const qtyMalaysianChild = parseInt(document.getElementById('qtyMalaysianChild').value) || 0;
     const qtyNonMalaysianAdult = parseInt(document.getElementById('qtyNonMalaysianAdult').value) || 0;
     const qtyNonMalaysianChild = parseInt(document.getElementById('qtyNonMalaysianChild').value) || 0;
+    const totalQuantity = qtyMalaysianAdult + qtyMalaysianChild + qtyNonMalaysianAdult + qtyNonMalaysianChild;
+
+    // Check if the total quantity is greater than 0
+    if (totalQuantity === 0) {
+        alert('Please select at least one ticket.');
+        return;
+    }
+
     const totalAmount = parseFloat(document.getElementById('totalAmount').innerText.replace('Total: ', '').replace(' MYR', ''));
 
     const cartItem = {

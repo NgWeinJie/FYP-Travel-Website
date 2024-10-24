@@ -83,6 +83,8 @@ body {
     padding: 5px 10px;
     border-radius: 5px;
     cursor: pointer;
+    margin-top: 15px;
+    margin-bottom: 15px;
 }
 
 .comment-button:hover {
@@ -100,12 +102,9 @@ body {
     border-radius: 50%;
 }
 
-.media-body {
-    margin-left: 15px; /* Adjusted for better spacing */
-}
 
 .media-body h5 {
-    margin-top: 8px; /* Adjust to vertically align with the avatar */
+    margin-top: 10px; /* Adjust to vertically align with the avatar */
     color: #333;
 }
 

@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Feedback</title>
+    <title>Contact Us</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link href="css/feedback.css" rel="stylesheet">
+    <link href="css/contact_us.css" rel="stylesheet">
     <link href="css/header.css" rel="stylesheet">
 </head>
 <body>
@@ -68,7 +68,7 @@
                         <a class="nav-link text-white" href="order_history.html">Order History</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="feedback.html">Feedback Form</a>
+                        <a class="nav-link text-white" href="contact_us.html">Contact Us</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-white" href="profile.html">Profile</a>
@@ -78,34 +78,83 @@
         </div>
     </nav>
 
+    <!-- Support Ticket Form -->
     <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header bg-custom">
-                        <h4 class="mb-0">Feedback Form</h4>
+        <div class="card">
+            <div class="card-header bg-custom">
+                <h4 class="mb-0">Create a New Support Ticket</h4>
+            </div>
+            <div class="card-body">
+                <form id="contactForm">
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <input type="text" class="form-control" id="subject" required>
+                        <div class="text-danger error d-none" id="subjectError"></div>
                     </div>
-                    <div class="card-body">
-                        <form id="feedbackForm">
-                            <div class="form-group">
-                                <label for="subject">Subject</label>
-                                <input type="text" class="form-control" id="subject" required>
-                                <div class="text-danger error d-none" id="subjectError"></div>
-                            </div>
-                            <div class="form-group">
-                                <label for="message">Feedback Message</label>
-                                <textarea class="form-control" id="message" rows="5" required></textarea>
-                                <div class="text-danger error d-none" id="messageError"></div>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-block">Submit Feedback</button>
-                            <div class="text-success mt-3 d-none" id="successMessage">Thank you for your feedback!</div>
-                            <div class="text-danger mt-3 d-none" id="formError">Error submitting feedback. Please try again.</div>
-                        </form>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea class="form-control" id="message" rows="5" required></textarea>
+                        <div class="text-danger error d-none" id="messageError"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Submit Ticket</button>
+                    <div class="text-success mt-3 d-none" id="successMessage">Ticket created successfully!</div>
+                    <div class="text-danger mt-3 d-none" id="formError">Error submitting ticket. Please try again.</div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tickets Section -->
+        <div class="mt-5">
+            <div class="card">
+                <div class="card-header bg-custom">
+                    <h4>Ongoing Tickets</h4>
+                </div>
+                <div class="card-body">
+                    <div id="ticket-list" class="mt-3">
+                        <!-- List of open tickets will be displayed here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header bg-custom">
+                    <h4>Closed Tickets</h4>
+                </div>
+                <div class="card-body">
+                    <div id="closed-tickets-list" class="mt-3">
+                        <!-- List of closed tickets will be displayed here -->
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+<!-- Chat Modal -->
+<div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="chatModalLabel">Chat with Support</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="background-color: #f0f0f0;">
+                <div id="chat-messages" class="chat-box border p-3" style="height: 300px; overflow-y: scroll;">
+                    <!-- Chat messages will be displayed here -->
+                </div>
+                <div id="chat-input-section" class="mt-3">
+                    <textarea id="userMessage" class="form-control" rows="2" placeholder="Type your message..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="sendUserMessage">Send</button>
+                <button class="btn btn-danger" id="closeTicket">Close Ticket</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -113,6 +162,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     
-    <script src="js/feedback.js"></script>
+    <script src="js/contact_us.js"></script>
 </body>
 </html>
