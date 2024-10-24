@@ -199,32 +199,6 @@ body {
     margin-bottom: 15px;
 }
 
-.bg-footer {
-    background-color: #FFAA33; /* Your specified color */
-}
-
-.footer {
-    background: linear-gradient(135deg, #FFAA33, #FFCC66);
-}
-
-.footer a {
-    color: white;
-    transition: color 0.3s;
-}
-
-
-.footer a:hover {
-    color: #ffd700; 
-}
-
-.footer .list-inline-item {
-    margin: 0 10px;
-}
-
-.footer .fab {
-    font-size: 24px;
-}
-
 /* Ensure the slide remains responsive */
 @media (max-width: 768px) {
     #promotion-slide img {

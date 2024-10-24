@@ -280,12 +280,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div class="card mb-3">
                 <div class="card-header text-white" style="background-color: #FFAA33;">Reviews</div>
                 <div class="card-body">
-                    <div id="reviews">
-                    </div>
                     <div class="form-group mt-4">
                         <textarea class="form-control" id="reviewComment" rows="3" placeholder="Share your experience..."></textarea>
                         <input type="file" id="reviewFiles" multiple>
                         <button class="btn btn-primary mt-2" onclick="addReview()" style="background-color: #FFAA33; border-color: #FFAA33;">Publish Review</button>
+                    </div>
+                    <div id="reviews">
                     </div>
                 </div>
             </div>
