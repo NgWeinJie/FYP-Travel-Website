@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     userName: userName,
                     userEmail: userEmail,
                     subject: subject,
-                    messages: [{ sender: 'user', message: message, timestamp: new Date() }],
+                    messages: [{ sender: 'user', message: message, timestamp: new Date(), senderName: userName }],
                     status: 'open',
                     created_at: firebase.firestore.FieldValue.serverTimestamp()
                 });
@@ -89,13 +89,13 @@ document.addEventListener('DOMContentLoaded', function() {
         currentTicketId = ticketId;
         isTicketOpen = isOpen;
         $('#chatModal').modal('show');
-        
+    
         const chatMessages = document.getElementById('chat-messages');
         const chatInputSection = document.getElementById('chat-input-section');
         const userMessage = document.getElementById('userMessage');
         const sendUserMessage = document.getElementById('sendUserMessage');
         const closeTicketButton = document.getElementById('closeTicket');
-        
+    
         // Fetch and display messages for the selected ticket
         db.collection('tickets').doc(ticketId).onSnapshot(doc => {
             const ticket = doc.data();
@@ -118,7 +118,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
                 const msgDiv = document.createElement('div');
                 msgDiv.classList.add('message', msg.sender === 'admin' ? 'admin' : 'user', 'mb-2');
-                msgDiv.innerHTML = `<div>${msg.message}</div><div class="message-time">${messageTime}</div>`;
+    
+                // Format sender name to include (user) or (admin) and apply CSS classes
+                const senderName = msg.sender === 'admin' 
+                    ? `<span class="admin-name">${msg.senderName} (admin)</span>` 
+                    : `<span class="user-name">${msg.senderName} (user)</span>`;
+                    
+                msgDiv.innerHTML = `
+                    <div>${senderName}:</div>
+                    <div class="message-text">${msg.message}</div>
+                    <div class="message-time">${messageTime}</div>`;
                 chatMessages.appendChild(msgDiv);
             });
     
@@ -145,7 +154,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     messages: firebase.firestore.FieldValue.arrayUnion({
                         sender: 'user',
                         message,
-                        timestamp: new Date()
+                        timestamp: new Date(),
+                        senderName: userName
                     })
                 });
                 userMessage.value = '';
@@ -190,10 +200,8 @@ document.addEventListener('DOMContentLoaded', function() {
         alert('Ticket created successfully!');
         document.getElementById('contactForm').reset();
     }
-    
 
     function showErrorMessage(message) {
         alert(message);
     }
-    
 });

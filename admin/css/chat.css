@@ -91,9 +91,9 @@ body {
     text-align: center;
     color: #555;
     font-size: 0.8rem;
-    margin: 10px auto; /* Centers the date */
+    margin: 10px auto; 
     font-weight: bold;
-    display: block; /* Ensures it takes full width */
+    display: block; 
 }
 
 /* Time below each message */
@@ -102,4 +102,27 @@ body {
     text-align: right;
     display: block;
     color: #888;
+}
+
+
+/* Styling for the admin name in messages */
+.message .admin-name {
+    font-size: 0.8rem; 
+    color: rgb(91, 89, 89); 
+}
+
+
+.message .message-text {
+    font-size: 1rem; 
+}
+
+
+.message.admin {
+    background-color: #f8dc26;
+    border-radius: 8px;
+    padding: 10px;
+    max-width: 70%;
+    margin: 5px 0;
+    align-self: flex-end;
+    word-wrap: break-word;
 }

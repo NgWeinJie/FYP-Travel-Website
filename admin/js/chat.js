@@ -14,7 +14,29 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-document.addEventListener('DOMContentLoaded', function() {
+let adminName = '';
+
+// Function to get admin name from Firestore
+function getAdminName(admin) {
+    return db.collection('admin').doc(admin.uid).get().then(doc => {
+        if (doc.exists) {
+            const data = doc.data();
+            return `${data.firstName} ${data.lastName}`;
+        } else {
+            return 'Admin';  // Default fallback if admin document doesn't exist
+        }
+    }).catch(() => 'Admin');  // Fallback in case of error
+}
+
+document.addEventListener('DOMContentLoaded', async function () {
+    // Fetch admin data (You can fetch admin name based on auth or predefined data)
+    firebase.auth().onAuthStateChanged(async function (admin) {
+        if (admin) {
+            // Fetch admin's name
+            adminName = await getAdminName(admin);
+        }
+    });
+
     fetchTickets();
     showOngoingChats(); // Show ongoing chats by default
 });
@@ -122,7 +144,8 @@ function openChat(ticketId, isOpen) {
 
             const msgDiv = document.createElement('div');
             msgDiv.classList.add('message', msg.sender === 'admin' ? 'admin' : 'user', 'mb-2');
-            msgDiv.innerHTML = `<div>${msg.message}</div><div class="message-time">${messageTime}</div>`;
+            const senderName = msg.sender === 'admin' ? `${msg.senderName} (admin)` : `${msg.senderName} (user)`;
+            msgDiv.innerHTML = `<div><span class="admin-name">${senderName}</span>:</div> <div class="message-text">${msg.message}</div> <div class="message-time">${messageTime}</div>`;
             chatMessages.appendChild(msgDiv);
         });
 
@@ -143,13 +166,19 @@ function openChat(ticketId, isOpen) {
 
     // Sending a message
     sendAdminMessage.onclick = async () => {
+        if (!adminName) {
+            alert("Admin name not available, please try again.");
+            return;
+        }
+
         const message = adminMessage.value;
         if (message.trim()) {
             await db.collection('tickets').doc(ticketId).update({
                 messages: firebase.firestore.FieldValue.arrayUnion({
                     sender: 'admin',
                     message,
-                    timestamp: new Date()
+                    timestamp: new Date(),
+                    senderName: adminName
                 })
             });
             adminMessage.value = ''; // Clear input after sending

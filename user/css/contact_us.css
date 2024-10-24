@@ -111,4 +111,16 @@ body {
     font-size: 0.5rem;
     text-align: right;
     display: block;
+    color: #888;
+}
+
+.admin-name {
+    font-size: 0.8rem; 
+    color: rgb(91, 89, 89); 
+}
+
+
+.user-name {
+    font-size: 0.8rem; 
+    color: rgb(91, 89, 89); 
 }
