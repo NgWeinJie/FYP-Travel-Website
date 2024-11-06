@@ -13,7 +13,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
-const storage = firebase.storage();  // Initialize Firebase Storage
+const storage = firebase.storage();
 
 function createMediaElement(images) {
     return `
@@ -137,8 +137,8 @@ async function addReview() {
         attractionId,
         userName: `${firstName} ${lastName}`,
         comment,
-        timestamp: firebase.firestore.Timestamp.now(),  // Use Firestore Timestamp
-        mediaUrls,  // Store media URLs
+        timestamp: firebase.firestore.Timestamp.now(),
+        mediaUrls,
         replies: []
     };
 
@@ -171,7 +171,7 @@ async function addReply(reviewId, comment) {
     const reply = {
         userName: `${firstName} ${lastName}`,
         comment,
-        timestamp: firebase.firestore.Timestamp.now()  // Use Firestore Timestamp
+        timestamp: firebase.firestore.Timestamp.now() 
     };
 
     try {

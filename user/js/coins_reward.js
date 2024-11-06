@@ -14,10 +14,8 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Check if a user is signed in and load data accordingly
     firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
-            // User is signed in, get userId and email
             const userId = user.uid;
             const userEmail = user.email;
 
@@ -95,7 +93,7 @@ function loadVouchers() {
 function showTerms(terms) {
     const modalContent = document.getElementById('modalContent');
     modalContent.textContent = terms; // Set the terms text
-    $('#termsModal').modal('show'); // Show modal using jQuery (ensure Bootstrap is loaded)
+    $('#termsModal').modal('show'); 
 }
 
 function loadRedemptionHistory(userId) {

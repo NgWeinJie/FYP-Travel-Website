@@ -442,7 +442,7 @@ async function processPayment() {
             name: `${orderData.userDetails.firstName} ${orderData.userDetails.lastName}`,
             contactNumber: orderData.userDetails.contactNumber,
             orderId: orderId,
-            orderDate: orderData.orderDate.toISOString(), // Send the date in ISO format
+            orderDate: orderData.orderDate.toISOString(),
         });
 
         alert('Payment and Ticket Generation Successful!');

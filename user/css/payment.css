@@ -60,7 +60,7 @@ input[type="text"], input[type="email"], input[type="tel"] {
 
 .spinner {
     border: 8px solid #f3f3f3;
-    border-top: 8px solid #FFAA33; /* Adjust color to match your theme */
+    border-top: 8px solid #FFAA33; 
     border-radius: 50%;
     width: 60px;
     height: 60px;
@@ -114,6 +114,6 @@ input[type="text"], input[type="email"], input[type="tel"] {
 }
 
 #redeemCoinsInfo .fa-coins {
-    color: #FFD700; /* Gold color for coins */
+    color: #FFD700; 
     margin-left: 5px;
 }

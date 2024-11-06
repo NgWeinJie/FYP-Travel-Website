@@ -155,7 +155,7 @@ function renderSalesChart(salesByLocation) {
         options: {
             responsive: true,
             animation: {
-                duration: 1000, // Masa untuk animasi
+                duration: 1000,
                 easing: 'easeOutBounce'
             },
             scales: {

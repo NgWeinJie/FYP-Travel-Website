@@ -1,4 +1,3 @@
-// Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyAddpoD3P3TYiHBCDdaE-1WeBegF8CmGbE",
     authDomain: "fyp-travel-website-7eed9.firebaseapp.com",
@@ -9,7 +8,6 @@ const firebaseConfig = {
     measurementId: "G-EB638XG363"
 };
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
 // References to Firestore and Storage
@@ -78,7 +76,7 @@ document.getElementById('attractionForm').addEventListener('submit', async (e) =
             images: imageUrls
         });
         document.getElementById('statusMessage').textContent = 'Attraction added successfully!';
-        alert('Attraction added successfully!'); // Show alert message
+        alert('Attraction added successfully!');
         document.getElementById('attractionForm').reset();
     } catch (error) {
         document.getElementById('statusMessage').textContent = `Error: ${error.message}`;
