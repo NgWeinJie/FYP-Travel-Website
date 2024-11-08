@@ -12,9 +12,9 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-// Reference to Firestore
+
 const db = firebase.firestore();
-const auth = firebase.auth(); // Firebase Authentication
+const auth = firebase.auth(); 
 
 document.addEventListener('DOMContentLoaded', () => {
     // Function to create the media element

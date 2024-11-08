@@ -37,7 +37,7 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
             .then(() => {
                 alert('Registration successful!');
                 setTimeout(() => {
-                    window.location.href = 'login.html'; // Redirect to login page
+                    window.location.href = 'login.html';
                 }, 1000); // Delay of 1 second
             })
             .catch(error => {

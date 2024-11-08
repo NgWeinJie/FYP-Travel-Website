@@ -8,63 +8,63 @@ body {
 
 .card {
     margin-bottom: 20px;
-    border: 1px solid #ddd; /* Adds a border to the card */
-    border-radius: 5px; /* Adds rounded corners */
-    overflow: hidden; /* Ensures content does not overflow */
-    display: flex; /* Ensures the card content is laid out in a flex container */
-    flex-direction: column; /* Stacks children vertically */
-    height: 100%; /* Makes sure the card takes up full height of the parent */
+    border: 1px solid #ddd; 
+    border-radius: 5px;
+    overflow: hidden; 
+    display: flex; 
+    flex-direction: column; 
+    height: 100%; 
 }
 
 .card-img-top {
     height: 200px;
     object-fit: cover;
-    width: 100%; /* Ensures the image covers the width of the card */
+    width: 100%; 
 }
 
 .card-body {
     background-color: #f8f9fa;
-    flex: 1; /* Ensures the body takes up available space */
-    padding: 15px; /* Adds padding inside the card body */
-    display: flex; /* Ensures the body is a flex container */
-    flex-direction: column; /* Stacks children vertically */
-    justify-content: space-between; /* Space between title and text */
+    flex: 1; 
+    padding: 15px; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: space-between; 
 }
 
 .card-title {
     font-size: 18px;
     font-weight: bold;
-    margin-bottom: 10px; /* Adds spacing below the title */
+    margin-bottom: 10px;
 }
 
 .card-text {
     font-size: 14px;
-    margin-bottom: 10px; /* Adds spacing below the text */
+    margin-bottom: 10px;
 }
 
 .favorite-button {
-    border: 2px solid #FFAA33; /* Outline color */
+    border: 2px solid #FFAA33; 
     background: none;
     font-size: 18px;
-    color: #FFAA33; /* Default text color for outline */
+    color: #FFAA33; 
     cursor: pointer;
     margin-right: 10px;
-    border-radius: 5px; /* Rounded corners */
-    padding: 5px 10px; /* Padding inside button */
+    border-radius: 5px; 
+    padding: 5px 10px;
 }
 
 .favorite-button:hover {
-    color: #FFAA33; /* Color on hover */
-    border-color: #FFAA33; /* Border color on hover */
+    color: #FFAA33;
+    border-color: #FFAA33;
 }
 
 .favorite-button.active {
-    color: #FFAA33 !important; /* Text color when active */
+    color: #FFAA33 !important; 
     border-color: #FFAA33 !important; /* Border color when active */
     background-color: rgba(255, 170, 51, 0.1) !important; /* Light orange background when active */
 }
 
 .favorite-icon {
     color: #FFAA33; /* Color for filled heart */
-    font-size: 24px; /* Adjust the size as needed */
+    font-size: 24px; 
 }

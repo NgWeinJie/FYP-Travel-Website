@@ -9,14 +9,13 @@ const firebaseConfig = {
     measurementId: "G-EB638XG363"
 };
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         const orders = await fetchAllOrders();
-        displayCustomerHistory(orders, 'upcoming'); // Initially display upcoming orders
+        displayCustomerHistory(orders, 'upcoming');
 
         // Event listeners for tabs
         document.getElementById('upcoming-tab').addEventListener('click', () => {
@@ -38,7 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 order.id.toLowerCase().includes(searchTerm) ||
                 `${order.userDetails.firstName} ${order.userDetails.lastName}`.toLowerCase().includes(searchTerm)
             );
-            displayCustomerHistory(filteredOrders, currentTab); // Use the current tab filter
+            displayCustomerHistory(filteredOrders, currentTab);
         });
     } catch (error) {
         console.error('Error fetching customer history:', error);
@@ -82,7 +81,7 @@ async function fetchAllOrders() {
 async function fetchAttractions(attractionIds) {
     const attractionsDataMap = {};
     try {
-        const batchSize = 10; // Firestore allows a maximum of 10 elements for 'in' query
+        const batchSize = 10; // Firestore only allows a maximum of 10 elements for 'in' query
         for (let i = 0; i < attractionIds.length; i += batchSize) {
             const batch = attractionIds.slice(i, i + batchSize); // Slice the array into batches of 10
             const attractionDocs = await db.collection('attractions')

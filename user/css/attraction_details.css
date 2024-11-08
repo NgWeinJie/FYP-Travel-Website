@@ -19,8 +19,8 @@ h2 {
 
 /* Media Styles */
 .img-fluid {
-    border-radius: 0; /* Remove border radius for images */
-    object-fit: cover; /* Ensure the image covers the container */
+    border-radius: 0; 
+    object-fit: cover; 
 }
 
 .main-img-container {
@@ -28,19 +28,19 @@ h2 {
 }
 
 .main-img {
-    height: 400px; /* Fixed height */
+    height: 400px;
     width: 100%;
-    object-fit: cover; /* Ensure the image covers the container */
+    object-fit: cover;
 }
 
 .secondary-img-container {
-    height: 195px; /* Fixed height for half the height of the main image with margin */
+    height: 195px;
 }
 
 .secondary-img {
     height: 100%;
     width: 100%;
-    object-fit: cover; /* Ensure the image covers the container */
+    object-fit: cover; 
 }
 
 /* Details Styles */
@@ -68,7 +68,6 @@ a.btn-light:hover {
     background-color: #e89b28;
 }
 
-/* Remove extra margin and padding */
 .no-gutters {
     margin-right: 0;
     margin-left: 0;
@@ -235,7 +234,7 @@ iframe {
 .media img {
     width: 50px;
     height: 50px;
-    border-radius: 0; /* Remove border radius for avatars in reviews */
+    border-radius: 0;
     object-fit: cover;
 }
 
@@ -243,7 +242,7 @@ iframe {
 .media img {
     width: 40px;
     height: 40px;
-    border-radius: 0; /* Remove border radius for avatars in replies */
+    border-radius: 0;
     object-fit: cover;
 }
 

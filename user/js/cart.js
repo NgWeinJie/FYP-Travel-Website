@@ -360,8 +360,6 @@ async function applyPromoCode() {
 
 
 
-
-// Example function to fetch promo codes (add to Firebase Firestore)
 async function fetchPromotions() {
     try {
         const promoSnapshot = await db.collection('promotions').get();
