@@ -165,11 +165,11 @@ async function addComment(postId, content) {
         return;
     }
 
-    const { firstName, lastName, avatarUrl } = userDoc.data(); // Fetch the avatar URL from the user document
+    const { firstName, lastName, avatarUrl } = userDoc.data();
 
     const comment = {
         userName: `${firstName} ${lastName}`,
-        userAvatar: avatarUrl || '../image/avatar.jpg', // Use the user's avatar URL if available, otherwise a default avatar
+        userAvatar: avatarUrl || '../image/avatar.jpg',
         content,
         timestamp: firebase.firestore.Timestamp.now()
     };

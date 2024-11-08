@@ -31,9 +31,14 @@ document.getElementById('attractionForm').addEventListener('submit', async (e) =
     const state = document.getElementById('state').value;
     const files = document.getElementById('images').files;
 
-    // Ensure at least one image or video is uploaded
-    if (files.length === 0) {
-        document.getElementById('statusMessage').textContent = 'Please upload at least one image or video.';
+    if (ticketPriceMalaysianAdult < 0 || ticketPriceMalaysianChild < 0 || 
+        ticketPriceNonMalaysianAdult < 0 || ticketPriceNonMalaysianChild < 0) {
+        document.getElementById('statusMessage').textContent = 'Prices cannot be negative.';
+        return;
+    }
+
+    if (files.length !== 3) {
+        alert('Please upload three images.');
         return;
     }
 

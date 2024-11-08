@@ -282,7 +282,7 @@ async function getImageAsBase64FromFirebase(path) {
 // Function to generate a single PDF with multiple pages for different tickets
 async function generateTicketsPDF(user, items) {
     try {
-        const { jsPDF } = window.jspdf; // Ensure jsPDF is loaded from the library
+        const { jsPDF } = window.jspdf; 
 
         const doc = new jsPDF(); // Create a new jsPDF instance
 
@@ -297,7 +297,7 @@ async function generateTicketsPDF(user, items) {
         // Function to center QR code
         const centerQRCode = (qrCodeURL, y) => {
             const width = doc.internal.pageSize.width;
-            doc.addImage(qrCodeURL, 'JPEG', (width - 50) / 2, y, 50, 50); // Center QR code horizontally
+            doc.addImage(qrCodeURL, 'JPEG', (width - 50) / 2, y, 50, 50);
         };
 
         // Add content for each ticket
@@ -307,14 +307,14 @@ async function generateTicketsPDF(user, items) {
             const qrCodeURL = await generateQRCode(qrCodeData);
 
             if (i > 0) {
-                doc.addPage(); // Add a new page for each ticket after the first
+                doc.addPage();
             }
 
-            doc.setTextColor("#FFAA33"); // Set text color
-            centerText('FlyOne Travel Explorer', 20, 24); // Larger and bold text
+            doc.setTextColor("#FFAA33");
+            centerText('FlyOne Travel Explorer', 20, 24); 
 
-            doc.setTextColor("#000000"); // Reset text color to black
-            centerText('Thank you for your purchase!', 30, 16); // Regular text
+            doc.setTextColor("#000000");
+            centerText('Thank you for your purchase!', 30, 16);
 
             // Add attraction details
             centerText(`Attraction: ${item.attractionName}`, 50, 16, 'normal');
@@ -326,18 +326,16 @@ async function generateTicketsPDF(user, items) {
             centerQRCode(qrCodeURL, 90); // Center QR code at y = 90
         }
 
-        // Return the PDF as a data URI before saving it
-        const pdfData = doc.output('datauristring'); // Get PDF data as data URI
+        const pdfData = doc.output('datauristring');
 
-        // Save the PDF after all pages are added
         const fileName = `Tickets_${user.uid}.pdf`;
         doc.save(fileName); // Optional, if you want to save the PDF locally as well
 
-        return pdfData; // Return the PDF data URI
+        return pdfData; 
 
     } catch (error) {
         console.error('Error generating ticket PDF:', error);
-        throw error; // Optionally rethrow the error for further handling
+        throw error; 
     }
 }
 
@@ -362,8 +360,6 @@ async function sendOrderSummaryEmail(email, totalAmount, pdfData, orderItems, us
         console.error('Error sending order summary email:', error);
     }
 }
-
-
 
 
 async function processPayment() {
@@ -458,12 +454,16 @@ async function processPayment() {
 }
 
 
-
-
 // Function to process DuitNow QR Payment
 function processDuitnowPayment() {
-    alert("DuitNow payment has been processed successfully!");
-    processPayment();
+    showLoadingSpinner("Checking payment...");
+    setTimeout(() => {
+        hideLoadingSpinner();
+        setTimeout(() => {
+            alert("Payment has been successfully processed!");
+            processPayment();
+        }, 100); // Minor delay ensure UI updates smoothly
+    }, 3000);
 }
 
 // Function to validate card details
@@ -526,25 +526,28 @@ function validateExpiryDate(expiryDate) {
 // Function to validate and process the payment
 function validateAndProcessPayment() {
     if (validateCardDetails()) {
-        showLoadingSpinner();
-        processPayment().then(() => {
-            hideLoadingSpinner();
-        }).catch(error => {
-            hideLoadingSpinner();
-            console.error('Error processing payment:', error);
-            alert('Payment failed, please try again.');
-        });
+        showLoadingSpinner("Processing your payment...");
+        setTimeout(() => {
+            processPayment().then(() => {
+                hideLoadingSpinner();
+                setTimeout(() => alert("Payment has been successfully processed!"), 100);
+            }).catch(error => {
+                hideLoadingSpinner();
+                console.error('Error processing payment:', error);
+                alert('Payment failed, please try again.');
+            });
+        }, 3000);
     }
 }
 
 // Show a loading spinner
-function showLoadingSpinner() {
+function showLoadingSpinner(message) {
     const spinner = document.createElement('div');
     spinner.id = 'loadingSpinner';
     spinner.innerHTML = `
         <div class="spinner-overlay">
             <div class="spinner"></div>
-            <p>Processing your payment...</p>
+            <p>${message}</p>
         </div>`;
     document.body.appendChild(spinner);
 }
@@ -552,10 +555,9 @@ function showLoadingSpinner() {
 // Hide the loading spinner
 function hideLoadingSpinner() {
     const spinner = document.getElementById('loadingSpinner');
-    if (spinner) {
-        spinner.remove();
-    }
+    if (spinner) spinner.remove();
 }
+
 
 // Setup redeem coins functionality
 function setupRedeemCoins(userCoins) {

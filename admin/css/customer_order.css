@@ -1,0 +1,89 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #ffffff;
+}
+
+h2 {
+    color: #FFAA33;
+    margin-bottom: 20px;
+}
+
+.search-bar {
+    margin-bottom: 20px;
+}
+
+.customer-history {
+    margin-top: 20px;
+}
+
+.order-card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.order-card h4 {
+    color: #FFAA33;
+}
+
+.order-card p {
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+.order-card ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.order-summary {
+    text-align: right;
+}
+
+/* Button Styles */
+.btn-primary {
+    background-color: #FFAA33;
+    border-color: #FFAA33;
+}
+
+.btn-primary:hover {
+    background-color: #e6952b;
+    border-color: #e6952b;
+}
+
+/* Table Header Styling */
+.table thead.thead-custom th {
+    background-color: #FFAA33; 
+    color: #ffffff;            
+}
+
+/* Tab Styling */
+.nav-tabs .nav-link.active {
+    background-color: #FFAA33; 
+    color: #ffffff !important;
+}
+
+.nav-tabs .nav-link {
+    color: #FFAA33; /* Tab text color for inactive tabs */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .search-bar {
+        width: 100%;
+    }
+    
+    .order-card {
+        padding: 10px;
+    }
+
+    .order-card h4 {
+        font-size: 18px;
+    }
+
+    .order-card p {
+        font-size: 14px;
+    }
+}

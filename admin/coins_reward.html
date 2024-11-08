@@ -29,6 +29,9 @@
                     <a class="nav-link text-white" href="coins_reward.html">Coins Reward</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link text-white" href="customer_order.html">Customer Orders History</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link text-white" href="analytics.html">Sales Analytics</a>
                 </li>
                 <li class="nav-item">
@@ -100,6 +103,46 @@
             </div>
         </div>
     </div>
+
+    <!-- Edit Voucher Modal -->
+    <div class="modal fade" id="editVoucherModal" tabindex="-1" role="dialog" aria-labelledby="editVoucherModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editVoucherModalLabel">Edit Voucher</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editVoucherForm">
+                        <div class="form-group">
+                            <label for="editVoucherName">Voucher Name</label>
+                            <input type="text" class="form-control" id="editVoucherName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editCostOfCoins">Cost of Coins</label>
+                            <input type="number" class="form-control" id="editCostOfCoins" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editStocks">Stocks</label>
+                            <input type="number" class="form-control" id="editStocks" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editStepsToUse">Steps to Use</label>
+                            <textarea class="form-control" id="editStepsToUse" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="editTermsConditions">Terms & Conditions</label>
+                            <textarea class="form-control" id="editTermsConditions" rows="3" required></textarea>
+                        </div>
+                        <button type="button" id="saveChangesButton" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-firestore.js"></script>

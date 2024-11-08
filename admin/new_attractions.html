@@ -28,6 +28,9 @@
                     <a class="nav-link text-white" href="coins_reward.html">Coins Reward</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link text-white" href="customer_order.html">Customer Orders History</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link text-white" href="analytics.html">Sales Analytics</a>
                 </li>
                 <li class="nav-item">
@@ -48,20 +51,20 @@
             </div>
             <div class="form-group">
                 <label for="ticketPriceMalaysianAdult">Ticket Price (Malaysian - Adult)</label>
-                <input type="number" class="form-control" id="ticketPriceMalaysianAdult" required>
+                <input type="number" class="form-control" id="ticketPriceMalaysianAdult" min="0" required>
             </div>
             <div class="form-group">
                 <label for="ticketPriceMalaysianChild">Ticket Price (Malaysian - Child)</label>
-                <input type="number" class="form-control" id="ticketPriceMalaysianChild" required>
+                <input type="number" class="form-control" id="ticketPriceMalaysianChild" min="0" required>
             </div>
             <div class="form-group">
                 <label for="ticketPriceNonMalaysianAdult">Ticket Price (Non-Malaysian - Adult)</label>
-                <input type="number" class="form-control" id="ticketPriceNonMalaysianAdult" required>
+                <input type="number" class="form-control" id="ticketPriceNonMalaysianAdult" min="0" required>
             </div>
             <div class="form-group">
                 <label for="ticketPriceNonMalaysianChild">Ticket Price (Non-Malaysian - Child)</label>
-                <input type="number" class="form-control" id="ticketPriceNonMalaysianChild" required>
-            </div>
+                <input type="number" class="form-control" id="ticketPriceNonMalaysianChild" min="0" required>
+            </div>            
             <div class="form-group">
                 <label for="description">Description</label>
                 <textarea class="form-control" id="description" rows="4" required></textarea>
@@ -82,8 +85,8 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="images">Upload Images or Videos (at least one required)</label>
-                <input type="file" class="form-control-file" id="images" multiple accept="image/*,video/*" required>
+                <label for="images">Upload three Images</label>
+                <input type="file" class="form-control-file" id="images" multiple accept="image/*">
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
         </form>

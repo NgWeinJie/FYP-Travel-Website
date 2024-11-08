@@ -67,7 +67,7 @@ body {
 #chat-messages {
     display: flex;
     flex-direction: column;
-    background-color: #e5ddd5; /* Matching the chat box background */
+    background-color: #e5ddd5; 
     padding: 10px;
     border-radius: 8px;
 }

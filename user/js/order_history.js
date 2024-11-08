@@ -137,9 +137,9 @@ function displayOrderHistory(orders, filter) {
         return order.items.some(item => {
             const visitDate = new Date(item.visitDate);
             if (filter === 'upcoming') {
-                return visitDate > now || isSameDateWithoutTime(visitDate, now); // Include today's date as upcoming
+                return visitDate > now || isSameDateWithoutTime(visitDate, now); 
             } else {
-                return visitDate < now && !isSameDateWithoutTime(visitDate, now); // Exclude today's date from history
+                return visitDate < now && !isSameDateWithoutTime(visitDate, now);
             }
         });
     });

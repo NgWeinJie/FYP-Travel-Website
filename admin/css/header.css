@@ -1,6 +1,5 @@
-/* Header Navigation Styling */
 header {
-    background-color: #FFAA33; /* Orange background */
+    background-color: #FFAA33;
 }
 
 header .navbar-nav {
@@ -11,7 +10,7 @@ header .navbar-nav {
 header .nav-link {
     color: white;
     font-size: 16px;
-    margin: 0 14px;
+    margin: 0 4px;
     text-transform: none;
     font-weight: bold;
 }
@@ -21,7 +20,6 @@ header .nav-link:hover {
     opacity: 0.8;
 }
 
-/* Responsive adjustments for the header */
 @media (max-width: 768px) {
     header .nav-link {
         font-size: 16px;

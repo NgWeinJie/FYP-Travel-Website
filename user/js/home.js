@@ -14,9 +14,26 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
+let topAttractionsIds = new Set();
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM fully loaded and parsed.");
 
+    async function initializePage() {
+        
+        // Wait for getRecommendations to complete before continuing
+        await getRecommendations();
+
+        await fetchAttractionsByState('KL', 'kuala-lumpur-attractions');
+        await fetchAttractionsByState('Penang', 'penang-attractions');
+
+        // Load promotion slides
+        await loadPromotionSlide();
+    }
+
+    // Call the async initialize function
+    initializePage();
+    
 
     // Function to create the media element
     function createMediaElement(images) {
@@ -50,11 +67,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            let htmlContent = '';
-            snapshot.forEach(async doc => {
+        let htmlContent = '';
+        snapshot.forEach(async doc => {
+                const attractionId = doc.id;
+                const data = doc.data();
+            if (!topAttractionsIds.has(attractionId)) {
                 const data = doc.data();
                 const mediaElement = createMediaElement(data.images);
-                const attractionId = doc.id;
 
                 // Create the card HTML
                 const cardHTML = `
@@ -87,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await updateLikeDislikeCounts(attractionId);
                 await updateFavoriteStatus(attractionId);
                 await updateReactionStyles(attractionId);
+            }
             });
 
             container.innerHTML = htmlContent;
@@ -330,9 +350,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Generate HTML for the top attractions
             let htmlContent = '';
             topAttractions.forEach(attraction => {
+                topAttractionsIds.add(attraction[0]);
                 const attractionId = attraction[0]; // Attraction ID
                 const attractionData = attractionsData[attractionId]; // Get the corresponding attraction data
-                const mediaElement = createMediaElement(attractionData.images); // Media element (image or video)
+                const mediaElement = createMediaElement(attractionData.images);
     
                 // Create the card HTML
                 const cardHTML = `

@@ -25,14 +25,13 @@ function getAdminName(admin) {
         } else {
             return 'Admin';  // Default fallback if admin document doesn't exist
         }
-    }).catch(() => 'Admin');  // Fallback in case of error
+    }).catch(() => 'Admin');
 }
 
 document.addEventListener('DOMContentLoaded', async function () {
-    // Fetch admin data (You can fetch admin name based on auth or predefined data)
+    // Fetch admin data
     firebase.auth().onAuthStateChanged(async function (admin) {
         if (admin) {
-            // Fetch admin's name
             adminName = await getAdminName(admin);
         }
     });
@@ -58,7 +57,7 @@ function showClosedChats() {
     document.getElementById('closed-tab').classList.add('active');
     document.getElementById('ongoing-tab').classList.remove('active');
 
-    fetchTickets(); // Fetch tickets again to reset the display for closed chats
+    fetchTickets();
 }
 
 // Fetch and display tickets

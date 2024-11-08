@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer History</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="css/customer_order.css">
+    <link rel="stylesheet" href="css/header.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="navbar navbar-expand-lg navbar-light bg-ffaa33">
+        <div class="container justify-content-center">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="dashboard.html">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="new_attractions.html">Add New Attraction</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="chat.html">Admin Chat</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="promotion.html">Promotion</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="coins_reward.html">Coins Reward</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="customer_order.html">Customer Orders History</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="analytics.html">Sales Analytics</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="login.html">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </header>
+
+    <div class="container my-4">
+        <h2>Customer Orders History</h2>
+        <div class="search-bar input-group mb-4">
+            <input type="text" class="form-control" id="searchInput" placeholder="Search by Order ID or User Name">
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="button" id="searchButton">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Tabs for Upcoming and History -->
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" id="upcoming-tab" href="#">Upcoming</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="history-tab" href="#">History</a>
+            </li>
+        </ul>
+        <div id="customerHistoryContainer" class="customer-history mt-4">
+            <!-- Customer orders will be dynamically loaded here -->
+        </div>
+    </div>
+
+    <!-- Firebase SDKs and other scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.7.1/firebase-firestore.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="js/customer_order.js"></script>
+</body>
+</html>

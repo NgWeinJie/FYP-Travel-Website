@@ -1,4 +1,3 @@
-// Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyAddpoD3P3TYiHBCDdaE-1WeBegF8CmGbE",
     authDomain: "fyp-travel-website-7eed9.firebaseapp.com",
@@ -9,7 +8,7 @@ const firebaseConfig = {
     measurementId: "G-EB638XG363"
 };
 
-// Firebase configuration (same as before)
+
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
@@ -157,7 +156,7 @@ function renderSalesChart(salesByLocation) {
             responsive: true,
             animation: {
                 duration: 1000, // Masa untuk animasi
-                easing: 'easeOutBounce' // Jenis easing untuk animasi
+                easing: 'easeOutBounce'
             },
             scales: {
                 y: {
@@ -168,7 +167,7 @@ function renderSalesChart(salesByLocation) {
     });
 }
 
-let dailySalesChartInstance = null; // Declare a global variable to store the chart instance
+let dailySalesChartInstance = null;
 
 function renderDailySalesChart(dailySales) {
     const ctx = document.getElementById('dailySalesChart').getContext('2d');
@@ -184,7 +183,7 @@ function renderDailySalesChart(dailySales) {
 
     const formattedDates = sortedDates.map(date => {
         const parts = date.split('/'); // Format: MM/DD/YYYY
-        return `${parts[1]}/${parts[0]}/${parts[2]}`; // Convert to DD/MM/YYYY
+        return `${parts[1]}/${parts[0]}/${parts[2]}`; 
     });
 
     // Create a new chart and store it in the global variable
@@ -211,7 +210,7 @@ function renderDailySalesChart(dailySales) {
     });
 }
 
-let monthlySalesChartInstance = null; // Global variable for monthly chart instance
+let monthlySalesChartInstance = null;
 
 function renderMonthlySalesChart(monthlySales) {
     const ctx = document.getElementById('monthlySalesChart').getContext('2d');
@@ -237,7 +236,7 @@ function renderMonthlySalesChart(monthlySales) {
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false, // Fix chart height
+            maintainAspectRatio: false,
             scales: {
                 y: {
                     beginAtZero: true
@@ -266,7 +265,7 @@ function renderAttractionChart(attractions) {
         options: {
             indexAxis: 'y',
             responsive: true,
-            maintainAspectRatio: false, // Allow the chart to adjust while maintaining fixed height
+            maintainAspectRatio: false, 
             scales: {
                 x: {
                     beginAtZero: true
@@ -315,7 +314,6 @@ function toggleAttractionsView(allAttractions, topAttractions) {
     }
 }
 
-// Function to export cart data to CSV
 function exportCartDataToCSV(salesData, salesByLocation, allAttractions, dailySales, monthlySales) {
     if (!salesData || salesData.length === 0) {
         console.error('No sales data available for export.');
@@ -333,14 +331,13 @@ function exportCartDataToCSV(salesData, salesByLocation, allAttractions, dailySa
     }
     csvRows.push(''); // Add an empty row for separation
 
-    // Add headers for Popular Attractions (this is where we ensure all attractions are exported)
     csvRows.push('Popular Attractions');
     csvRows.push('Attraction Name,Tickets Sold');
     allAttractions.forEach(attraction => {
         const row = `${attraction[0]},${attraction[1]}`; // Export all attractions
         csvRows.push(row);
     });
-    csvRows.push(''); // Add an empty row for separation
+    csvRows.push('');
 
     // Add headers for Daily Sales
     csvRows.push('Daily Sales');
@@ -350,7 +347,7 @@ function exportCartDataToCSV(salesData, salesByLocation, allAttractions, dailySa
         const row = `${date},${revenue},${ticketsSold}`;
         csvRows.push(row);
     }
-    csvRows.push(''); // Add an empty row for separation
+    csvRows.push('');
 
     // Add headers for Monthly Sales
     csvRows.push('Monthly Sales');
@@ -416,9 +413,9 @@ function filterMonthlySales(startMonth, endMonth) {
     const monthlySalesFiltered = {};
 
     // Create Date objects for comparison
-    const start = new Date(`${startMonth}-01`);  // Start of the start month
-    const end = new Date(`${endMonth}-01`);      // Start of the end month
-    end.setMonth(end.getMonth() + 1);            // Move to the next month to include the full end month
+    const start = new Date(`${startMonth}-01`);
+    const end = new Date(`${endMonth}-01`);      
+    end.setMonth(end.getMonth() + 1);            
 
     // Loop through the months in monthlySales and filter based on the start and end range
     Object.keys(monthlySales).forEach(month => {
@@ -426,7 +423,7 @@ function filterMonthlySales(startMonth, endMonth) {
 
         // Check if the current month is within the range [start, end)
         if (currentMonth >= start && currentMonth < end) {
-            monthlySalesFiltered[month] = monthlySales[month];  // Include month in filtered results
+            monthlySalesFiltered[month] = monthlySales[month]; 
         }
     });
 

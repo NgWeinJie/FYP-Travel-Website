@@ -12,7 +12,6 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-// References to Firestore and Storage
 const db = firebase.firestore();
 const storage = firebase.storage();
 
@@ -27,7 +26,7 @@ document.getElementById('editImages').addEventListener('change', function (e) {
 // Display attractions
 async function displayAttractions(query = '') {
     const attractionsList = document.getElementById('attractionsList');
-    attractionsList.innerHTML = ''; // Clear the container before displaying new results
+    attractionsList.innerHTML = '';
 
     try {
         const snapshot = await db.collection('attractions').get();
@@ -127,6 +126,19 @@ document.getElementById('editAttractionForm').addEventListener('submit', async (
         state: document.getElementById('editState').value,
         images: [] // Initialize the images array
     };
+
+
+    const ticketPriceMalaysianAdult = parseFloat(updatedData.ticketPriceMalaysianAdult);
+    const ticketPriceMalaysianChild = parseFloat(updatedData.ticketPriceMalaysianChild);
+    const ticketPriceNonMalaysianAdult = parseFloat(updatedData.ticketPriceNonMalaysianAdult);
+    const ticketPriceNonMalaysianChild = parseFloat(updatedData.ticketPriceNonMalaysianChild);
+   
+    if (ticketPriceMalaysianAdult < 0 || ticketPriceMalaysianChild < 0 || 
+        ticketPriceNonMalaysianAdult < 0 || ticketPriceNonMalaysianChild < 0) {
+        alert("Error: Ticket prices cannot be negative. Please enter valid prices.");
+        return; 
+    }
+   
 
     // If no new images are selected, keep the existing ones
     if (selectedFilesOrder.length === 0) {
